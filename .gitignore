@@ -1,0 +1,27 @@
+# 🧱 Carpeta de dependències o llibreries externes
+/vendor/
+
+# 🧠 Fitxers de sistema de l'IDE / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# 🧪 Fitxers temporals o de prova
+*.tmp
+*.bak
+*.swp
+
+# 🚫 Fitxers generats per PHP
+*.log
+*.cache
+*.session
+
+# 🪄 Arxius del servidor local
+.env
+.htaccess
+composer.lock
+
+# 🧰 Altres arxius que no cal pujar
+node_modules/
+npm-debug.log
