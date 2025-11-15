@@ -1,5 +1,4 @@
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 -- ········································
@@ -8,10 +7,12 @@ SET time_zone = "+00:00";
 DROP DATABASE IF EXISTS `PT04_Anghelo_Pardo`;
 CREATE DATABASE IF NOT EXISTS `PT04_Anghelo_Pardo`
   DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Seleccionem la base de dades abans de fer res
 USE `PT04_Anghelo_Pardo`;
 
 -- ·································
--- · Taula | Usuaris               ·
+-- ·       Taula | Usuaris         ·
 -- ·································
 DROP TABLE IF EXISTS `usuaris`;
 CREATE TABLE `usuaris` (
@@ -29,7 +30,7 @@ INSERT INTO `usuaris` (`nom`, `email`, `contrasenya`) VALUES
 ('anghelopj', 'anghelopj@gmail.com', 'abcd');
 
 -- ·································
--- · Taula | Articles              ·
+-- ·       Taula | Articles        ·
 -- ·································
 DROP TABLE IF EXISTS `articles`;
 CREATE TABLE `articles` (
@@ -47,5 +48,3 @@ CREATE TABLE `articles` (
 INSERT INTO `articles` (`titol`, `cos`, `imatge_url`, `autor_id`) VALUES
 ('Primer article', 'Aquest és el primer article de prova.', 'assets/img/articles/article1.jpg', 1),
 ('Segon article', 'Aquest és el segon article de prova.', 'assets/img/articles/article2.jpg', 2);
-
-COMMIT;
