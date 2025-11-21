@@ -21,30 +21,46 @@ class CookieController {
 
     /**
      * Función para iniciar sesión automáticamente
-     * obtenemos los datos desde la cookie
+     * obtenemos los datos desde la cookie y rotamos el token de la cookie
+     * para evitar que se pueda reutilizar el token
      */
     public function loginWithCookie() {
-        $token = $_COOKIE[$this->cookieName];
+        $token = $_COOKIE[$this->cookieName] ?? null;
+        if (!$token) return null;
 
-        $userDAO = new UserDAO();
-        $userId = $userDAO->getUserIdByToken($token);
-
+        $userId = UserDAO::getUserIdByToken($token);
         if ($userId) {
             $_SESSION['user_id'] = $userId;
+
+            // Rotar token automáticamente
+            $this->setRememberMe($userId);
+
             return $userId;
         }
-
         return null;
     }
+
 
     /**
      * Función para guardar la cookie remember_me
      */
     public function setRememberMe($userId) {
-        $token = bin2hex(random_bytes(16)); // Token aleatorio
-        setcookie($this->cookieName, $token, time() + (60*60*24*30), "/"); // 30 días
 
-        $userDAO = new UserDAO();
-        $userDAO->saveRememberToken($userId, $token);
+        $token = bin2hex(random_bytes(16)); // Token aleatorio
+        $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+
+        // Guardar cookie (cliente)
+        setcookie(
+            $this->cookieName,
+            $token,
+            time() + (60 * 60 * 24 * 30),
+            "/",
+            "",
+            false,
+            true // HTTPOnly
+        );
+
+        // Guardar en BD
+        UserDAO::saveRememberToken($userId, $token, $expires);
     }
 }
