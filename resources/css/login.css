@@ -1,0 +1,132 @@
+/* 
+   CSS DEL LOGIN.HTML Y REGISTER.HTML
+*/
+
+/* 
+   CONTENEDOR LOGIN
+*/
+
+.contenedor-login {
+    background-color: var(--color-secondary);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    width: 450px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+/* Títulos dentro del login */
+.logotipo-titulo {
+    font-family: "Tomorrow-Medium", sans-serif;
+    color: var(--color-text-base);
+    margin-bottom: var(--spacing-md);
+}
+
+.titulo {
+    text-align: center;
+    font-size: 35px;
+    color: var(--color-text-base);
+    margin-bottom: var(--spacing-md);
+}
+
+/* Formularios */
+.formulario-login {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.input-group {
+    color: var(--color-text-base);
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.input-group label {
+    margin-bottom: var(--spacing-xs);
+}
+
+.input-group input {
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-md);
+    border: 1px solid #ccc;
+}
+
+.input-group input::placeholder {
+    color: var(--color-text-secondary);
+}
+
+.form-opciones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.recordar {
+    color: var(--color-text-base);
+}
+
+.link-olvidada {
+    color: var(--color-boton-secondary);
+}
+
+.link-registro {
+    color: var(--color-boton-secondary);
+}
+
+/* Botón login */
+
+/*
+  Añadiendo animación SHINE (brillo que se mueve sobre el botón)
+  La idea lo tomé de: https://www.sliderrevolution.com/resources/css-button-hover-effects/
+*/
+
+.btn-login {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-boton-secondary);
+    color: var(--color-primary);
+    font-weight: bold;
+    padding: var(--spacing-md);
+    box-shadow: var(--btn-shadow);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.btn-login::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    left: -75px;
+    width: 50px;
+    height: 155px;
+    background: white;
+    opacity: 0.2;
+    transform: rotate(35deg);
+    transition: all 550ms cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: 0;
+}
+
+.btn-login:hover::after {
+    left: 120%;
+    /* Mover animación anterior a la derecha */
+}
+
+/* Botones sociales */
+.botones-sociales {
+    display: flex;
+    justify-content: space-around;
+    margin-top: var(--spacing-xs);
+}
+
+.btn-social {
+    width: 13vh;
+    background: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+    cursor: pointer;
+}

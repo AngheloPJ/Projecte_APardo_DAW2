@@ -1,0 +1,152 @@
+/* 
+   FUENTES DE TEXTO INSTALADAS
+*/
+
+@font-face {
+    font-family: "Tomorrow-Regular";
+    /* Fuente: Tomorrow Regular */
+    src: url("../fonts/Tomorrow-Regular.ttf") format("truetype");
+    /* Ruta de la fuente instalada */
+}
+
+@font-face {
+    font-family: "Tomorrow-Medium";
+    /* Fuente: Tomorrow Medium */
+    src: url("../fonts/Tomorrow-Medium.ttf") format("truetype");
+    /* Ruta de la fuente instalada */
+}
+
+@font-face {
+    font-family: "TsukimiRounded-Regular";
+    /* Fuente: Tsukimi Regular */
+    src: url("../fonts/TsukimiRounded/TsukimiRounded-Regular.ttf") format("truetype");
+    /* Ruta de la fuente instalada */
+}
+
+@font-face {
+    font-family: "TsukimiRounded-Medium";
+    /* Fuente: Tsukimi Regular */
+    src: url("../fonts/TsukimiRounded/TsukimiRounded-Medium.ttf") format("truetype");
+    /* Ruta de la fuente instalada */
+}
+
+/*
+   VARIABLES INTERNAS CSS
+*/
+
+:root {
+    /* Colores de fondo principales */
+    --color-primary: #fffcfc;
+    --color-secondary: #e8e8e8;
+    --color-accent: #999;
+
+    --color-text-base: #000;
+    --color-text-secondary: #b8b5b5;
+
+    --color-boton-primary: #000;
+    --color-boton-secondary: #4056ff;
+    --color-boton-hover: #6053f7;
+    --color-boton-selected: #51f848;
+
+    /* Color del botón al pasar el cursor */
+    --boton-shadow: rgb(38, 57, 77) 0px 10px 30px -10px;
+
+    /* Espaciados */
+    --spacing-xs: 5px;
+    /* Espaciado mínimo entre "Iconos y texto" (EXTRA SMALL) */
+    --spacing-sm: 10px;
+    /* Espaciado pequeño entre "Paddings internos y botones o inputs" (SMALL) */
+    --spacing-md: 15px;
+    /* Espaciado mediano entre "Separación estandar entre bloques" (MEDIUM) */
+    --spacing-lg: 25px;
+    /* Margen grande entre secciones o contenedores (LARGE) */
+
+    /* Radio de los bordes */
+    --radius-sm: 4px;
+    /* Borde pequeño entre "Paddings internos y botones o inputs" (SMALL) */
+    --radius-md: 8px;
+    /* Border mediano entre "Separación estandar entre bloques" (MEDIUM) */
+}
+
+/*
+   CONFIGURACIÓN PREDETERMINADA
+*/
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    /* Elimina el margen exterior predeterminado de los navegadores */
+    padding: 0;
+    /* Elimina el espaciado interno predeterminado de los navegadores */
+    box-sizing: border-box;
+    /* Asegura que el padding y los bordes no aumenten el tamaño total de los elementos */
+}
+
+/*
+   RESET DE MARGENES DE LOS TITULOS (HTML)
+*/
+body p,
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+    margin: 0;
+}
+
+/*
+   CUERPO DE LA WEB (BODY)
+*/
+
+body {
+    background-color: var(--main-bg);
+    color: var(--text-primary-color);
+    min-height: 95vh;
+    line-height: 1.5;
+    font-family: "Tomorrow-Regular",
+        /* Fuente instalada */
+        "Tomorrow-Regular",
+        /* Fuente instalada 2 */
+        "Tsukimi-Regular",
+        /* Fuente instalada */
+        "Tsukimi-Medium",
+        /* Fuente instalada 2 */
+        system-ui,
+        /* Fuente nativa del sistema */
+        -apple-system,
+        /* macOS / iOS */
+        "Segoe UI",
+        /* Windows */
+        Roboto,
+        /* Android / ChromeOS */
+        Ubuntu,
+        /* Linux */
+        Cantarell,
+        /* Linux GNOME */
+        "Open Sans",
+        /* Web fallback */
+        sans-serif;
+    /* Genérico de última instancia */
+    letter-spacing: 0.5px;
+}
+
+/*
+   ESTILOS BASES PARA CONTENIDOS (HTML)
+*/
+
+/* Reset para las listas navbar del menú */
+.nav-menu {
+    list-style-type: none;
+}
+
+/* Reset del formato enlace de HTML */
+a {
+    color: var(--text-secondary-color);
+    text-decoration: none;
+}
+
+.errores {
+    color: #fe5959;
+}
