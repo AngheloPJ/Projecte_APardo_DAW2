@@ -1,0 +1,41 @@
+/*
+   CSS DEL FOOTER [GLOBAL PARA TODOS LOS HTML]
+*/
+
+footer {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5%;
+    background-color: var(--color-secondary);
+    margin-top: 50px;
+}
+
+footer p {
+    font-size: 0.9rem;
+    color: var(--color-text-base);
+    margin: 0;
+}
+
+.footer-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.footer-buttons button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: var(--color-boton-primary);
+    color: var(--color-primary);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.footer-buttons button:hover {
+    background-color: var(--color-boton-hover);
+}
