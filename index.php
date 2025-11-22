@@ -22,15 +22,16 @@ require_once BASE_PATH . '/app/controller/main-controller.php';
 require_once BASE_PATH . '/app/controller/login-controller.php';
 require_once BASE_PATH . '/app/controller/session-controller.php';
 require_once BASE_PATH . '/app/controller/cookie-controller.php';
+require_once BASE_PATH . '/app/controller/article-controller.php';
 
 // Obtenir URI
-$uri = '/' . trim($_GET['uri'] ?? '', '/');
 
 // Instancias
 $main    = new MainController();
 $login   = new LoginController();
 $session = new SessionController();
 $cookies = new CookieController();
+$article = new ArticleController();
 
 /* 
    AutoLogin global amb cookie
@@ -42,14 +43,14 @@ if (!$session->isLogged() && $cookies->hasRememberMe()) {
 /* 
    Obtenir URI limpia
 */
-$uri = '/' . trim($_GET['uri'] ?? '', '/');
-if ($uri === '/') {
+$uri = trim($_GET['uri'] ?? '', '/');
+
+if ($uri === '' || $uri === '/') {
     $page = 'home';
 } elseif (isset($routes[$uri])) {
-    // Si coincide con una ruta definida
-    $page = trim($uri, '/'); // ej: '/login' → 'login'
+    $page = $uri;
 } else {
-    $page = null; // Ruta no encontrada → 404
+    $page = null;
 }
 
 /* 
@@ -58,11 +59,49 @@ if ($uri === '/') {
 
 switch ($page) {
 
+    // ARTICULOS
+    case 'article/create':
+        if (!$session->isLogged()) {
+            header("Location: " . BASE_URL . 'login');
+            exit;
+        }
+        $article->showCreateForm();
+        break;
+
+    case 'article/create-submit':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $article->create();
+        } else {
+            header("Location: " . BASE_URL . 'articles/create');
+            exit;
+        }
+        break;
+
+    case 'article/edit-submit':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $article->edit();
+        } else {
+            header("Location: " . BASE_URL . 'home');
+            exit;
+        }
+        break;
+
+    // LOGIN
     case 'login':
+        if ($session->isLogged()) {
+            header("Location: " . BASE_URL . 'home');
+            exit;
+        }
+
         $login->showLoginForm();
         break;
 
     case 'register':
+        if ($session->isLogged()) {
+            header("Location: " . BASE_URL . 'home');
+            exit;
+        }
+
         $login->showRegisterForm();
         break;
 
@@ -90,21 +129,43 @@ switch ($page) {
         }
         break;
 
+    // HOME
+    case 'my-articles':
+        if (!$session->isLogged()) {
+            header("Location: " . BASE_URL . 'home');
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $user = UserDAO::getById($userId);
+        $main->showUserArticles($userId);
+        break;
 
     case 'home':
-    if ($session->isLogged()) {
-        $user = UserDAO::getById($_SESSION['user_id']);
-        if (isset($user['rol']) && $user['rol'] === 'admin') {
-            $main->showAllArticles();
-        } else {
-            $main->showUserArticles($_SESSION['user_id']);
-        }
-    } else $main->showAllArticles();
-    break;
+        $main->showAllArticles();
+        break;
 
     default:
-        // Ruta no encontrada → 404
+        if (preg_match('#^article/edit/(\d+)$#', $uri, $matches)) {
+            if (!$session->isLogged()) { header("Location: " . BASE_URL . 'login'); exit; }
+            $articleId = (int)$matches[1];
+            $article->showEditForm($articleId);
+            exit;
+        }
+        if (preg_match('#^article/delete/(\d+)$#', $uri, $matches)) {
+            if (!$session->isLogged()) { header("Location: " . BASE_URL . 'login'); exit; }
+            $articleId = (int)$matches[1];
+            $article->delete($articleId);
+            exit;
+        }
+        if (preg_match('#^article/(\d+)$#', $uri, $matches)) {
+            $articleId = (int)$matches[1];
+            $main->showArticle($articleId);
+            exit;
+        }
+
+        // Error 404 si no existe
         http_response_code(404);
         require_once BASE_PATH . '/public/errors/404-view.php';
-        break;
+        exit;
 }
