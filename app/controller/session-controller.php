@@ -6,37 +6,36 @@
     ····························
 */
 
-require_once BASE_PATH . 'app/model/dao/UserDAO.php';
-require_once BASE_PATH . 'app/controller/cookie-controller.php';
+require_once BASE_PATH . '/app/model/dao/UserDAO.php';
+require_once BASE_PATH . '/app/controller/cookie-controller.php';
 
 class SessionController {
 
-    /** 
-     * Función para comprobar si el usuario está logeado
+    /**
+     * Comprobar si el usuario está logeado
      */
     public function isLogged(): bool {
         return isset($_SESSION['user_id']);
     }
 
     /**
-     * Función para iniciar sesión (Guardar ID en sesión)
+     * Iniciar sesión con un objeto User
      */
-    public function login($userId) {
-        $_SESSION['user_id'] = $userId;
+    public function login(User $user) {
+        $_SESSION['user_id'] = $user->getId();
     }
 
     /**
-     * Función para cerrar sesión
-     * · Borra sesión
-     * · Borra cookie remember_me
-     * · Borra token en BD
+     * Cerrar sesión
+     * - Borra sesión
+     * - Borra cookie remember_me
+     * - Borra token en BD
      */
     public function logout() {
-        // Si hay usuario logeado
         $userId = $_SESSION['user_id'] ?? null;
 
         if ($userId) {
-            // 1) Borrar token en BD
+            // Borrar token en BD
             $pdo = DBConnection::getConnection();
             $stmt = $pdo->prepare("
                 UPDATE usuaris 
@@ -47,26 +46,37 @@ class SessionController {
             $stmt->execute();
         }
 
-        // 2) Destruir sesión
+        // Destruir sesión
         session_unset();
         session_destroy();
 
-        // 3) Borrar cookie remember_me
-        $cookieName = "remember_me";
-        if (isset($_COOKIE[$cookieName])) {
-            setcookie($cookieName, '', time() - 3600, "/");
-        }
+        // Borrar cookie
+        $cookie = new CookieController();
+        $cookie->clearRememberMe();
     }
 
     /**
      * Intentar login automático mediante cookie
+     * Devuelve objeto User o null
      */
-    public function autoLogin() {
-        if ($this->isLogged()) return;
+    public function autoLogin(): ?User {
+        if ($this->isLogged()) {
+            return UserDAO::getById($_SESSION['user_id']);
+        }
 
         $cookie = new CookieController();
         if ($cookie->hasRememberMe()) {
-            $cookie->loginWithCookie();
+            return $cookie->loginWithCookie();
         }
+
+        return null;
+    }
+
+    /**
+     * Obtener el usuario actual como objeto User
+     */
+    public function getUser(): ?User {
+        if (!$this->isLogged()) return null;
+        return UserDAO::getById($_SESSION['user_id']);
     }
 }

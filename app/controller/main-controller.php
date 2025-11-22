@@ -8,50 +8,64 @@ class MainController {
     /* Tots els articles */
     public function showAllArticles() {
 
-        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
         $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 1;
+        $maxPerPage = 20;
+
+        if ($perPage > $maxPerPage) $perPage = $maxPerPage;
+        if ($perPage < 1) $perPage = 1;
 
         $total = ArticleDAO::countAll();
-        $articles = ArticleDAO::listAll($perPage, ($page - 1) * $perPage);
-
         $totalPages = ceil($total / $perPage);
 
-        // Opcions de pàgina per al <select>
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+
+        if (!isset($_GET['total']) || (int)$_GET['total'] != $perPage || $page < 1 || $page > $totalPages) {
+            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
+            header("Location: $uri?p=1&total=$perPage");
+            exit;
+        }
+
+        $articles = ArticleDAO::listAll($perPage, ($page - 1) * $perPage);
+
+        // Opciones de <select>
         $options = [];
         if ($total <= 5) {
-            // Mostrar todos desde 1 hasta total
-            for ($i = 1; $i <= $total; $i++) {
-                $options[] = $i;
-            }
+            for ($i = 1; $i <= $total; $i++) $options[] = $i;
         } elseif ($total <= 15) {
-            // Paso de 2 o 3 según el total
             $step = ($total <= 9) ? 2 : 3;
-            for ($i = $step; $i <= $total; $i += $step) {
-                $options[] = $i;
-            }
-            if (!in_array($total, $options)) $options[] = $total; // Aseguramos que el total siempre esté
+            for ($i = $step; $i <= $total; $i += $step) $options[] = $i;
+            if (!in_array($total, $options)) $options[] = $total;
         } else {
-            // Más de 15 → pasos de 5, luego el total
-            for ($i = 5; $i < $total; $i += 5) {
-                $options[] = $i;
-            }
+            for ($i = 5; $i < $total; $i += 5) $options[] = $i;
             if (!in_array($total, $options)) $options[] = $total;
         }
 
         sort($options);
+        $viewMine = false;
         require BASE_PATH . '/app/view/main-view.php';
     }
 
     /* Només els articles del usuari */
     public function showUserArticles($userId) {
 
-        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
         $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 1;
+        $maxPerPage = 20;
+
+        if ($perPage > $maxPerPage) $perPage = $maxPerPage;
+        if ($perPage < 1) $perPage = 1;
 
         $total = ArticleDAO::countByUser($userId);
-        $articles = ArticleDAO::listByUser($userId, $perPage, ($page - 1) * $perPage);
-
         $totalPages = ceil($total / $perPage);
+
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+
+        if (!isset($_GET['total']) || (int)$_GET['total'] != $perPage || $page < 1 || $page > $totalPages) {
+            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
+            header("Location: $uri?p=1&total=$perPage");
+            exit;
+        }
+
+        $articles = ArticleDAO::listByUser($userId, $perPage, ($page - 1) * $perPage);
 
         $startIndex = ($page - 1) * $perPage;
         $pageOptions = range(1, $totalPages);
@@ -79,6 +93,7 @@ class MainController {
             if (!in_array($total, $options)) $options[] = $total;
         }
 
+        $viewMine = true;
         require BASE_PATH . '/app/view/main-view.php';
     }
 }

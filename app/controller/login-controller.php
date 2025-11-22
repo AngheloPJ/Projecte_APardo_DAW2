@@ -1,5 +1,7 @@
 <?php
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
+require_once BASE_PATH . '/app/controller/session-controller.php';
+require_once BASE_PATH . '/app/controller/cookie-controller.php';
 
 class LoginController {
 
@@ -16,30 +18,24 @@ class LoginController {
 
             $user = UserDAO::getByEmailOrName($userInput);
 
-            if ($user && password_verify($password, $user['contrasenya'])) {
+            if ($user && password_verify($password, $user->getPassword())) {
 
                 // Iniciar sesión normal
                 $session = new SessionController();
-                $session->login($user['id']);
+                $session->login($user);
 
                 // --- RECORDAR USUARIO ---
                 if ($remember) {
 
-                    // Generar token
-                    $token = bin2hex(random_bytes(32));
-
-                    // Fecha de expiración (30 días)
-                    $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
-
-                    // Guardar token + expiración en BD
-                    UserDAO::saveRememberToken($user['id'], $token, $expires);
-
                     // Crear cookie
                     $cookie = new CookieController();
-                    $cookie->setRememberMe($token, $expires);
+                    $cookie->setRememberMe($user);
                 }
 
-                header('Location: ' . BASE_URL);
+                $role = $user->getRol();
+
+                if ($role === 'admin') header('Location: ' . BASE_URL . 'home');
+                else header('Location: ' . BASE_URL . 'my-articles');
                 exit;
             }
 
@@ -107,9 +103,11 @@ class LoginController {
 
             if ($created) {
                 $user = UserDAO::getByEmail($email);
+                
                 $session = new SessionController();
-                $session->login($user['id']);
-                header('Location: ' . BASE_URL);
+                $session->login($user);
+                
+                header('Location: ' . BASE_URL . 'my-articles');
                 exit;
             } else {
                 $error = "Error al crear el usuario.";
@@ -117,7 +115,6 @@ class LoginController {
             }
         }
     }
-
 
     /**
      * Función para comprobar que el correo es correcto
@@ -127,15 +124,7 @@ class LoginController {
     }
 
     /**
-     * Función para comrpobar que la contraseña es segura
-     */
-    private function isStrongPassword(string $password): bool {
-        // Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo
-        return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/', $password);
-    }
-
-    /**
-     * Función auxiliar para hacer los errores más dinamicos.
+     * Función auxiliar para hacer los errores más dinámicos
      */
     private function validatePassword(string $password): array {
         $errors = [];
@@ -148,6 +137,4 @@ class LoginController {
 
         return $errors;
     }
-
-
 }

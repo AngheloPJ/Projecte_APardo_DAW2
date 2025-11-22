@@ -1,0 +1,99 @@
+/* resources/css/articles.css */
+
+/* Contenedor principal */
+.contenidor {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Títulos */
+.contenidor h2 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Form-group */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.form-group input[type="file"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: border 0.2s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Botón */
+button[type="submit"] {
+    padding: 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Mensajes de error */
+.error {
+    color: #d9534f;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .contenidor {
+        margin: 30px 15px;
+        padding: 20px;
+    }
+
+    .contenidor h2 {
+        font-size: 24px;
+    }
+
+    button[type="submit"] {
+        font-size: 16px;
+        padding: 10px;
+    }
+}

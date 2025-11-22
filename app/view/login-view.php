@@ -33,7 +33,7 @@ if ($error) $errors[] = $error;
                 $userId = $_SESSION['user_id'];
                 $user = UserDAO::getById($userId);
             ?>
-            <span>Hola, <?= htmlspecialchars($user['nom']) ?>!</span>
+            <span>Hola, <?= htmlspecialchars($user->getUsername()) ?>!</span>
             <a href="<?= BASE_URL ?>logout">
                 <button>Cerrar sesión</button>
             </a>
