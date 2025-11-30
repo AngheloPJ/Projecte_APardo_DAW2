@@ -25,7 +25,18 @@ class MainController {
             exit;
         }
 
-        $articles = ArticleDAO::listAll($perPage, ($page - 1) * $perPage);
+        $orderBy = 'data_creacio';
+        $direction = 'DESC';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['order'])) {
+            list($o, $d) = explode('|', $_POST['order']);
+            $allowedColumns = ['data_creacio', 'titol'];
+            $allowedDir = ['ASC', 'DESC'];
+            if (in_array($o, $allowedColumns)) $orderBy = $o;
+            if (in_array($d, $allowedDir)) $direction = $d;
+        }
+
+        $articles = ArticleDAO::listAll($perPage, ($page-1)*$perPage, $orderBy, $direction);
 
         // Opciones de <select>
         $options = [];
@@ -65,7 +76,10 @@ class MainController {
             exit;
         }
 
-        $articles = ArticleDAO::listByUser($userId, $perPage, ($page - 1) * $perPage);
+        $orderBy = 'data_creacio';
+        $direction = 'DESC';
+
+        $articles = ArticleDAO::listByUser($userId, $perPage, ($page - 1) * $perPage, $orderBy, $direction);
 
         $startIndex = ($page - 1) * $perPage;
         $pageOptions = range(1, $totalPages);
