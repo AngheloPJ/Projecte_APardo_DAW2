@@ -9,4 +9,5 @@ define('DSN', 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8mb4
 define('BASE_PATH', __DIR__ . '/../');
 define('BASE_URL', 'http://localhost/Practiques/Backend/Projecte/Prj1/');
 define('BASE_VIEW', BASE_PATH . 'app/view/');
+
 ?>

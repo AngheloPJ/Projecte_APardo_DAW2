@@ -50,7 +50,7 @@
 
             <div class="form-group">
                 <label for="imatge">Substituir imatge:</label>
-                <input type="file" id="imatge" name="imatge" accept="image/*">
+                <input type="file" id="imatge" name="imatge" accept=".webp, .jpg, .png, .jpeg">
             </div>
 
             <button type="submit">Actualizar</button>
@@ -59,7 +59,7 @@
 </main>
 
 <footer>
-    <p>El Iker es gay</p>
+    <p>Footer</p>
     <div class="footer-buttons">
         <button>Privacitat</button>
         <button>Terminos</button>

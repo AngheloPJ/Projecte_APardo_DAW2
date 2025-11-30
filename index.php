@@ -5,17 +5,11 @@
     ·····················
 */
 
-// Gestión del session primero que nada
-$session_lifetime = 40 * 60; // 40 minutos en segundos
-ini_set('session.gc_maxlifetime', $session_lifetime);
-session_set_cookie_params($session_lifetime);
-if (session_status() === PHP_SESSION_NONE) session_start();
+// Ruta base [env.php]
+require __DIR__ . '/config/env.php';
 
 // Archivo de rutas
 $routes = require __DIR__ . '/config/routes.php';
-
-// Ruta base [env.php]
-require_once __DIR__ . '/config/env.php';
 
 // Controladores
 require_once BASE_PATH . '/app/controller/main-controller.php';
@@ -23,8 +17,7 @@ require_once BASE_PATH . '/app/controller/login-controller.php';
 require_once BASE_PATH . '/app/controller/session-controller.php';
 require_once BASE_PATH . '/app/controller/cookie-controller.php';
 require_once BASE_PATH . '/app/controller/article-controller.php';
-
-// Obtenir URI
+require_once BASE_PATH . 'app/controller/user-controller.php';
 
 // Instancias
 $main    = new MainController();
@@ -32,6 +25,18 @@ $login   = new LoginController();
 $session = new SessionController();
 $cookies = new CookieController();
 $article = new ArticleController();
+$user    = new UserController();
+
+// Duración de la sesión
+$session_lifetime = 40 * 60;
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $session_lifetime) {
+    session_unset();
+    session_destroy();
+}
+
+$_SESSION['LAST_ACTIVITY'] = time();
 
 /* 
    AutoLogin global amb cookie
@@ -41,7 +46,7 @@ if (!$session->isLogged() && $cookies->hasRememberMe()) {
 }
 
 /* 
-   Obtenir URI limpia
+   Obtenir URI
 */
 $uri = trim($_GET['uri'] ?? '', '/');
 
@@ -58,6 +63,21 @@ if ($uri === '' || $uri === '/') {
 */
 
 switch ($page) {
+
+    // PERFIL
+    case 'profile/edit':
+        $usuariId = $_SESSION['user_id'];
+        $user->showEditForm($usuariId);
+        break;
+    
+    case 'profile/edit-submit':
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $user->editSubmit();
+    } else {
+        header("Location: " . BASE_URL . "profile/edit");
+        exit;
+    }
+    break;
 
     // ARTICULOS
     case 'article/create':
@@ -152,15 +172,24 @@ switch ($page) {
             $article->showEditForm($articleId);
             exit;
         }
+
         if (preg_match('#^article/delete/(\d+)$#', $uri, $matches)) {
             if (!$session->isLogged()) { header("Location: " . BASE_URL . 'login'); exit; }
             $articleId = (int)$matches[1];
             $article->delete($articleId);
             exit;
         }
+
         if (preg_match('#^article/(\d+)$#', $uri, $matches)) {
             $articleId = (int)$matches[1];
             $main->showArticle($articleId);
+            exit;
+        }
+
+        if (preg_match('#^profile/(\d+)$#', $uri, $matches)) {
+            if (!$session->isLogged()) { header('Location: ' . BASE_URL . 'home'); exit; }
+            $userId = (int)$matches[1];
+            $user->showUserProfile($userId);
             exit;
         }
 

@@ -1,19 +1,19 @@
-<!DOCTYPE html>
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Article | APardo</title>
-    <!-- CSS Principal -->
+    <title>Editar perfil | APardo</title>
+
+    <!-- CSS PRINCIPAL -->
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/main.css">
 
-    <!-- Componenetes -->
+    <!-- Componentes -->
+     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/footer.css">
 </head>
 <body>
-<header class="header">
+    <header class="header">
     <div class="header-left">
         <a href="<?= BASE_URL ?>home"><h1>Prj 1 | APardo</h1></a>
     </div>
@@ -69,30 +69,45 @@
 
 <main>
     <div class="contenidor">
-        <h2>Crear nou article</h2>
+        <h2>Editar perfil</h2>
 
-        <?php if (!empty($errorMsg)): ?>
-            <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
-        <?php endif; ?>
-
-        <form action="<?= BASE_URL ?>article/create-submit" method="post" enctype="multipart/form-data">
+        <form action="<?= BASE_URL ?>profile/edit-submit" method="post">
             <div class="form-group">
-                <label for="titol">Títol:</label>
-                <input type="text" id="titol" name="titol" value="<?= isset($_POST['titol']) ? htmlspecialchars($_POST['titol']) : '' ?>" required>
+                <label for="avatar">Avatar:</label>
+                <input type="file" id="avatar" name="avatar" accept=".webp, .jpg, .png, .jpeg">
             </div>
 
             <div class="form-group">
-                <label for="cos">Cos de l'article:</label>
-                <textarea id="cos" name="cos" rows="6" required><?= isset($_POST['cos']) ? htmlspecialchars($_POST['cos']) : '' ?></textarea>
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="<?= htmlspecialchars($user->getUsername()) ?>">
             </div>
 
             <div class="form-group">
-                <label for="imatge">Imatge:</label>
-                <input type="file" id="imatge" name="imatge" accept=".webp, .jpg, .png, .jpeg">
+                <label for="email">Correu:</label>
+                <input type="text" id="email" name="email" value="<?= htmlspecialchars($user->getEmail()) ?>">
             </div>
 
-            <button type="submit">Crear</button>
+            <div class="form-group">
+                <label for="pass">Contraseña actual:</label>
+                <input type="password" id="pass" name="pass">
+            </div>
+
+            <div class="form-group">
+                <label for="pass-nueva">Contraseña nueva:</label>
+                <input type="password" id="pass-nueva" name="pass-nueva">
+            </div>
+
+            <?php if (!empty($errorMsg)): ?>
+                <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
+            <?php endif; ?>
+
+            <?php if (!empty($successMsg)): ?>
+                <p class="success"><?= htmlspecialchars($successMsg) ?></p>
+            <?php endif; ?>
+
+            <button type="submit">Actualizar</button>
         </form>
+
     </div>
 </main>
 
@@ -103,6 +118,5 @@
         <button>Terminos</button>
     </div>
 </footer>
-
 </body>
 </html>

@@ -24,7 +24,7 @@ class UserDAO {
         return self::getById($id);
     }
 
-    // READ (Leer) - Por ID
+    // READ (Leer) - Por ID [ADMIN]
     public static function getById($id) {
         $pdo = DBConnection::getConnection();
         $stmt = $pdo->prepare("SELECT * FROM usuaris WHERE id = :id");
@@ -35,6 +35,21 @@ class UserDAO {
         if (!$row) return null;
 
         return new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
+    }
+
+    // READ (Leer) - Por ID [Usuarios]
+    public static function getById2(int $id) {
+        $pdo = DBConnection::getConnection();
+        // $stmt = $pdo->prepare("SELECT avatar_url, nom, email WHERE id = :id");
+        $stmt = $pdo->prepare("SELECT id, nom, email FROM usuaris WHERE id = :id");
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$row) return null;
+
+        // return new User($row['id'], $row['avatar_url'], $row['nom'], $row['email']);
+        return new User($row['id'], $row['nom'], $row['email']);
     }
 
     // READ (Leer) - Por username
@@ -135,6 +150,23 @@ class UserDAO {
         $stmt->execute();
     }
 
+    // Eliminar token
+    public static function clearRememberToken($userId) {
+    if (!$userId) return false;
+
+    $pdo = DBConnection::getConnection();
+    $stmt = $pdo->prepare("
+        UPDATE usuaris
+        SET remember_token = NULL,
+            remember_token_expires = NULL
+        WHERE id = :uid
+    ");
+    $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+
+    return $stmt->execute();
+
+    }
+
     // Obtener contraseña
     public static function getUserPassword($username) {
         $pdo = DBConnection::getConnection();
@@ -147,11 +179,13 @@ class UserDAO {
     // Obtenir usuari per token (cookie remember_me) verificando expiración
     public static function getUserIdByToken($token) {
         $pdo = DBConnection::getConnection();
+        $hashedToken = hash('sha256', $token);
         $stmt = $pdo->prepare("SELECT id 
-                                 FROM usuaris 
-                               WHERE remember_token = :token AND remember_token_expires > NOW()");
-        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
-        $stmt->execute();
+                                  FROM usuaris 
+                               WHERE remember_token = :token
+                               AND remember_token_expires > NOW()");
+    $stmt->bindValue(':token', $hashedToken, PDO::PARAM_STR);
+    $stmt->execute();
         return $stmt->fetchColumn();
     }
 

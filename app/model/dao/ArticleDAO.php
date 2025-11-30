@@ -108,33 +108,42 @@ class ArticleDAO {
     }
 
     // Llistar tots els articles amb un limit i offset per la pàginació
-    public static function listAll($limit, $offset) {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare(
-            "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-                FROM articles a
-             LEFT JOIN usuaris u ON a.autor_id = u.id
-             ORDER BY data_creacio DESC
-             LIMIT :limit OFFSET :offset"
-        );
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+    public static function listAll($limit, $offset, $orderBy = 'data_creacio', $direction = 'DESC') {
+    $pdo = DBConnection::getConnection();
 
-        $results = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $results[] = new Article(
-                $row['id'],
-                $row['titol'],
-                $row['cos'],
-                $row['imatge_url'],
-                $row['autor_id'],
-                $row['autor_nom'],
-                $row['data_creacio']
-            );
-        }
-        return $results;
+    $allowedColumns = ['data_creacio', 'titol'];
+    if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
+
+    $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+    $stmt = $pdo->prepare(
+        "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
+        FROM articles a
+        LEFT JOIN usuaris u ON a.autor_id = u.id
+        ORDER BY $orderBy $direction
+        LIMIT :limit OFFSET :offset"
+    );
+
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $results = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $results[] = new Article(
+            $row['id'],
+            $row['titol'],
+            $row['cos'],
+            $row['imatge_url'],
+            $row['autor_id'],
+            $row['autor_nom'],
+            $row['data_creacio']
+        );
     }
+
+    return $results;
+    }
+
 
     // Comptar articles publicats de l'usuari
     public static function countByUser($userId) {

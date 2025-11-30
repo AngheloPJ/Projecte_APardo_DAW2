@@ -151,13 +151,26 @@
                     <?php endforeach; ?>
                 </select>
             </form>
-
         </div>
     <?php endif; ?>
+
+    <div class="ordenar-articulos">
+        <form method="post">
+            <label for="order">Ordenar por:</label>
+            <select name="order" id="order" onchange="this.form.submit()">
+                <option value="data_creacio|ASC" <?= ($orderBy == 'data_creacio' && $direction == 'ASC') ? 'selected' : '' ?>>Fecha ↑</option>
+                <option value="data_creacio|DESC" <?= ($orderBy == 'data_creacio' && $direction == 'DESC') ? 'selected' : '' ?>>Fecha ↓</option>
+                <option value="titol|ASC" <?= ($orderBy == 'titol' && $direction == 'ASC') ? 'selected' : '' ?>>Título ↑</option>
+                <option value="titol|DESC" <?= ($orderBy == 'titol' && $direction == 'DESC') ? 'selected' : '' ?>>Título ↓</option>
+            </select>
+        </form>
+    </div>
+
+
 </main>
 
 <footer>
-    <p>El Iker es gay</p>
+    <p>Footer</p>
     <div class="footer-buttons">
         <button>Privacitat</button>
         <button>Terminos</button>
