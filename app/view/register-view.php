@@ -1,5 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
 $errors = [];
 if (!isset($error)) $error = null;
 if ($error) $errors[] = $error;
@@ -93,7 +92,7 @@ if ($error) $errors[] = $error;
 </main>
 
 <footer>
-    <p>El Iker es gay</p>
+    <p>Footer</p>
     <div class="footer-buttons">
         <button>Privacitat</button>
         <button>Terminos</button>
