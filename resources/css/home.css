@@ -226,30 +226,34 @@ main {
     box-shadow: 0 0 5px rgba(0, 128, 0, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .actions-bar {
-        flex-direction: column;
-        gap: 1em;
-    }
+/* Bloque de ordenar artículos */
+.ordenar-articulos {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
 
-    .actions-left,
-    .actions-right {
-        width: 100%;
-    }
+.ordenar-articulos label {
+    font-weight: bold;
+    color: #333;
+}
 
-    .search-input {
-        min-width: 100%;
-    }
+.ordenar-articulos select {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
 
-    .article-actions {
-        flex-direction: column;
-    }
-
-    .btn-primary,
-    .btn-search,
-    .btn-edit,
-    .btn-delete {
-        width: 100%;
-    }
+.ordenar-articulos select,
+.ordenar-articulos select {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }

@@ -8,6 +8,8 @@ return [
     'my-articles'     => 'MainController@showUserArticles',
     'login'           => 'LoginController@showLoginForm',
     'register'        => 'LoginController@showRegisterForm',
+    'profile/edit'    => 'User@showEditForm',
+    'profile/edit-submit' => 'UserController@editSubmit',
 
     // Acciones
     'login-submit'    => 'LoginController@login',
@@ -22,6 +24,6 @@ return [
     'article/delete/{id}'  => 'ArticleController@delete',
 
     // Rutas con parámetros
-    'author/{id}'     => 'MainControler@showUserArticle',
+    'profile/{id}'    => 'User@showUserProfile',
     'article/{id}'    => 'MainController@showArticle'
 ];

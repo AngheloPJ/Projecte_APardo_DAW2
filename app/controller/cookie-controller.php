@@ -21,7 +21,6 @@ class CookieController {
 
     /**
      * Iniciar sesión automáticamente mediante cookie
-     * Devuelve un objeto User o null
      */
     public function loginWithCookie(): ?User {
         $token = $_COOKIE[$this->cookieName] ?? null;
@@ -44,11 +43,12 @@ class CookieController {
 
     /**
      * Guardar la cookie remember_me
-     * Acepta un objeto User
+     * Encripto el token por si se filtra la BBDD
      */
     public function setRememberMe(User $user) {
         $token = bin2hex(random_bytes(16));
         $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+        $hashedToken = hash('sha256', $token);
 
         // Guardar cookie en cliente
         setcookie(
@@ -62,7 +62,7 @@ class CookieController {
         );
 
         // Guardar token en BD
-        UserDAO::saveRememberToken($user, $token, $expires);
+        UserDAO::saveRememberToken($user, $hashedToken, $expires);
     }
 
     /**

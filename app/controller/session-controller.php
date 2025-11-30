@@ -33,18 +33,7 @@ class SessionController {
      */
     public function logout() {
         $userId = $_SESSION['user_id'] ?? null;
-
-        if ($userId) {
-            // Borrar token en BD
-            $pdo = DBConnection::getConnection();
-            $stmt = $pdo->prepare("
-                UPDATE usuaris 
-                SET remember_token = NULL, remember_token_expires = NULL 
-                WHERE id = :uid
-            ");
-            $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
-            $stmt->execute();
-        }
+        if ($userId) UserDAO::clearRememberToken($userId);
 
         // Destruir sesión
         session_unset();
