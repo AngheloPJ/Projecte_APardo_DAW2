@@ -8,7 +8,7 @@ class MainController {
     /* Tots els articles */
     public function showAllArticles() {
 
-        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 1;
+        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
         $maxPerPage = 20;
 
         if ($perPage > $maxPerPage) $perPage = $maxPerPage;
@@ -52,14 +52,25 @@ class MainController {
         }
 
         sort($options);
+        $pageOptions = range(1, $totalPages);
+
         $viewMine = false;
         require BASE_PATH . '/app/view/main-view.php';
     }
 
     /* Només els articles del usuari */
-    public function showUserArticles($userId) {
+    public function showUserArticles() {
+        $session = new SessionController();
+        $user = $session->getUser();
 
-        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 1;
+        if (!$user) {
+            header("Location: " . BASE_URL . "login");
+            exit;
+        }
+
+        $userId = $user->getId();
+
+        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
         $maxPerPage = 20;
 
         if ($perPage > $maxPerPage) $perPage = $maxPerPage;

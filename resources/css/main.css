@@ -46,7 +46,7 @@
     --color-boton-primary: #000;
     --color-boton-secondary: #4056ff;
     --color-boton-hover: #6053f7;
-    --color-boton-selected: #51f848;
+    --color-boton-selected: #6053f7;
 
     /* Color del botón al pasar el cursor */
     --boton-shadow: rgb(38, 57, 77) 0px 10px 30px -10px;

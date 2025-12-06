@@ -10,6 +10,21 @@ require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/controller/cookie-controller.php';
 
 class SessionController {
+    private $session_lifetime = 40 * 60;
+
+    /**
+     * Funció per iniciar la sessió
+     */
+    public function start() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY']) > $this->session_lifetime) {
+            session_unset();
+            session_destroy();
+        }
+
+        $_SESSION['LAST_ACTIVITY'] = time();
+    }
 
     /**
      * Comprobar si el usuario está logeado
@@ -42,6 +57,10 @@ class SessionController {
         // Borrar cookie
         $cookie = new CookieController();
         $cookie->clearRememberMe();
+
+        // Redirigir a home
+        header("Location: " . BASE_URL . "home");
+        exit;
     }
 
     /**

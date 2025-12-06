@@ -10,7 +10,7 @@
 }
 
 /* Header left */
-.header-left h1 {
+.header-left .titulo_principal {
     margin: 0;
     font-size: 1.8em;
     text-transform: uppercase;
@@ -107,4 +107,22 @@
     height: 20px;
     vertical-align: middle;
     flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .header {
+        width: 100%;
+    }
+
+    .header-left .titulo_principal {
+        font-size: 1.4em;
+    }
+
+    .header-right {
+        width: 50%;
+    }
+
+    .header-right button {
+        padding: 0.20em 0.20em;
+    }
 }

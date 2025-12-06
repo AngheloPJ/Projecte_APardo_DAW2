@@ -44,7 +44,8 @@ class ArticleController {
         $article = ArticleDAO::getById($id);
         if (!$article) {
             http_response_code(404);
-            exit('Artículo no encontrado');
+            require_once BASE_PATH . '/public/errors/404-view.php';
+            exit();
         }
 
         if ($_SESSION['user_id'] != $article->getAuthorId() && !UserDAO::getById($_SESSION['user_id'])->isAdmin()) {
@@ -66,7 +67,11 @@ class ArticleController {
         $cos = trim($_POST['cos']);
 
         $article = ArticleDAO::getById($id);
-        if (!$article) exit('Artículo no encontrado');
+        if (!$article) {
+            http_response_code(404);
+            require_once BASE_PATH . '/public/errors/404-view.php';
+            exit();
+        }
 
         // Validar permisos
         $currentUser = UserDAO::getById($_SESSION['user_id']);
@@ -101,7 +106,8 @@ class ArticleController {
         $article = ArticleDAO::getById($id);
         if (!$article) {
             http_response_code(404);
-            exit('Artículo no encontrado');
+            require_once BASE_PATH . '/public/errors/404-view.php';
+            exit();
         }
 
         if ($_SESSION['user_id'] != $article->getAuthorId() && !UserDAO::getById($_SESSION['user_id'])->isAdmin()) {

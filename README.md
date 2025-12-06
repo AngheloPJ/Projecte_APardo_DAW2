@@ -27,13 +27,16 @@
   ├── README.md
   ├── config/
   │ ├── routes.php
+  │ ├── Route.php
   │ ├── env.php
   │ └── PT04_Anghelo_Pardo.sql
   ├── app/
   │ ├── controller/
+  │ │ ├── article-controller.php
   │ │ ├── main-controller.php
   │ │ ├── login-controller.php
   │ │ ├── cookie-controller.php
+  │ │ ├── user-controller.php
   │ │ └── session-controller.php
   │ ├── model/
   │ │ ├── db-connection.php
@@ -42,11 +45,16 @@
   │ │ │ └── UserDAO.php
   │ │ │── entity/
   │ │ │ ├── Article.php
-  │ │ │ └── Usuari.php
+  │ │ │ └── User.php
   │ └── view/
+  │ ├── header-view.php
   │ ├── main-view.php
   │ ├── login-view.php
-  │ └── register-view.php
+  │ ├── register-view.php
+  │ ├── profile-view.php
+  │ ├── article-create-view.php
+  │ ├── article-edit-view.php
+  │ └── footer-view.php
   ├── resources/
   │ ├── css/
   │ │ ├── main.css

@@ -1,4 +1,7 @@
 <?php
+
+namespace config;
+
 define("DB_HOST", "localhost");
 define("DB_NAME", "PT04_Anghelo_Pardo");
 define("DB_USER", "root");

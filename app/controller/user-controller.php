@@ -8,11 +8,13 @@ class UserController {
         require BASE_PATH . '/app/view/profile-view.php';
     }
 
-    public function showEditForm($id) {
-        $user = UserDAO::getById($id);
+    public function showEditForm() {
+        $session = new SessionController();
+        $user = $session->getUser();
+
         if (!$user) {
-            http_response_code(404);
-            exit('Usuario no encontrado');
+            header("Location: " . BASE_URL . "login");
+            exit;
         }
 
         require BASE_PATH . '/app/view/profile-view.php';
@@ -24,7 +26,8 @@ class UserController {
 
         if (!$user) {
             http_response_code(404);
-            exit('Usuario no encontrado');
+            require_once BASE_PATH . '/public/errors/404-view.php';
+            exit();
         }
 
         $username    = trim($_POST['username'] ?? '');

@@ -1,29 +1,31 @@
 <?php
 
-return [
+use config\Route;
 
-    // Acceso público
-    '/'                => 'MainController@showAllArticles',
-    'home'            => 'MainController@showAllArticles',
-    'my-articles'     => 'MainController@showUserArticles',
-    'login'           => 'LoginController@showLoginForm',
-    'register'        => 'LoginController@showRegisterForm',
-    'profile/edit'    => 'User@showEditForm',
-    'profile/edit-submit' => 'UserController@editSubmit',
+// Páginas públicas
+Route::get('/', 'MainController@showAllArticles');
+Route::get('home', 'MainController@showAllArticles');
+Route::get('my-articles', 'MainController@showUserArticles');
 
-    // Acciones
-    'login-submit'    => 'LoginController@login',
-    'logout'          => 'LoginController@logout',
-    'register-submit' => 'LoginController@register',
+// Login / registro
+Route::get('login', 'LoginController@showLoginForm');
+Route::get('register', 'LoginController@showRegisterForm');
+Route::get('logout', 'SessionController@logout');
 
-    // CRUD Articulos
-    'article/create' => 'ArticleController@showCreateForm',
-    'article/create-submit'=> 'ArticleController@create',
-    'article/edit/{id}'    => 'ArticleController@showEditForm',
-    'article/edit-submit'  => 'ArticleController@edit',
-    'article/delete/{id}'  => 'ArticleController@delete',
+Route::post('login-submit', 'LoginController@login');
+Route::post('register-submit', 'LoginController@register');
 
-    // Rutas con parámetros
-    'profile/{id}'    => 'User@showUserProfile',
-    'article/{id}'    => 'MainController@showArticle'
-];
+// Perfil
+Route::get('profile/edit', 'UserController@showEditForm');
+Route::post('profile/edit-submit', 'UserController@editSubmit');
+Route::get('profile/{id}', 'UserController@showUserProfile');
+
+// Artículos
+Route::get('article/create', 'ArticleController@showCreateForm');
+Route::post('article/create-submit', 'ArticleController@create');
+
+Route::get('article/edit/{id}', 'ArticleController@showEditForm');
+Route::post('article/edit-submit', 'ArticleController@edit');
+
+Route::get('article/delete/{id}', 'ArticleController@delete');
+Route::get('article/{id}', 'MainController@showArticle');

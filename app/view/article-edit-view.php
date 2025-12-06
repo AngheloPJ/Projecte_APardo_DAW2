@@ -1,21 +1,16 @@
+<?php
+require_once BASE_PATH . '/app/view/header-view.php';
+?>
+
 <!DOCTYPE html>
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Article | APardo</title>
-    <!-- CSS Principal -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/main.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/footer.css">
 </head>
 <body>
-<header class="header">
-    <div class="header-left">
-        <a href="<?= BASE_URL ?>home"><h1>Prj 1 | APardo</h1></a>
-    </div>
-</header>
 
 <main>
     <div class="contenidor">
@@ -58,12 +53,6 @@
     </div>
 </main>
 
-<footer>
-    <p>Footer</p>
-    <div class="footer-buttons">
-        <button>Privacitat</button>
-        <button>Terminos</button>
-    </div>
-</footer>
+<?php require_once BASE_PATH . '/app/view/footer-view.php' ?>
 </body>
 </html>

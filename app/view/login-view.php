@@ -1,4 +1,6 @@
 <?php
+require_once BASE_PATH . '/app/view/header-view.php';
+
 $errors = [];
 
 if (!isset($error)) $error = null;
@@ -11,46 +13,11 @@ if ($error) $errors[] = $error;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | APardo</title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/login.css">
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
-    <!-- CSS Principal -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/main.css">
-
-    <!-- Componenetes -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/login.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/footer.css">
 </head>
 <body>
-
-<header class="header">
-    <div class="header-left">
-        <a href="<?= BASE_URL ?>home"><h1>Prj 1 | APardo</h1></a>
-    </div>
-
-    <div class="header-right">
-        <?php if (isset($_SESSION['user_id'])): ?>
-            <?php 
-                $userId = $_SESSION['user_id'];
-                $user = UserDAO::getById($userId);
-            ?>
-            <span>Hola, <?= htmlspecialchars($user->getUsername()) ?>!</span>
-            <a href="<?= BASE_URL ?>logout">
-                <button>Cerrar sesión</button>
-            </a>
-        <?php else: ?>
-            <!-- Desplegable de Login/Registro -->
-            <div class="dropdown">
-                <button class="dropbtn">Cuenta</button>
-                <div class="dropdown-content">
-                    <a href="<?= BASE_URL ?>login">Iniciar sesión</a>
-                    <a href="<?= BASE_URL ?>register">Registrarse</a>
-                </div>
-            </div>
-        <?php endif; ?>
-    </div>
-</header>
 
 <main>
     <div class="contenedor-login">
@@ -93,13 +60,7 @@ if ($error) $errors[] = $error;
     </div>
 </main>
 
-<footer>
-    <p>Footer</p>
-    <div class="footer-buttons">
-        <button>Privacitat</button>
-        <button>Terminos</button>
-    </div>
-</footer>
+<?php require_once BASE_PATH . '/app/view/footer-view.php' ?>
 
 </body>
 </html>

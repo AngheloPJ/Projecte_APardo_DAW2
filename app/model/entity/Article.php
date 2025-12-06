@@ -33,13 +33,6 @@ class Article {
     public function setCos($cos) { $this->cos = $cos; }
     public function setImatgeUrl($img) { $this->imatge_url = $img; }
     public function setAuthor($author_nom) { $this->author = $author_nom; }
-
-    // Métodos auxiliares 
-    public function isEditableBy($user) {
-        return $user->getRol() === 'admin' || $user->getId() === $this->author_id;
-    }
-
-    public function getResumen($length = 100) {
-        return substr($this->cos, 0, $length) . (strlen($this->cos) > $length ? '...' : '');
-    }
 }
+
+?>
