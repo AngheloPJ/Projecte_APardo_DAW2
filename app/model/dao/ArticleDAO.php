@@ -108,42 +108,44 @@ class ArticleDAO {
     }
 
     // Llistar tots els articles amb un limit i offset per la pàginació
-    public static function listAll($limit, $offset, $orderBy = 'data_creacio', $direction = 'DESC') {
-    $pdo = DBConnection::getConnection();
+    public static function listAll($limit, $offset, $orderBy = 'data_creacio', $direction = 'ASC') {
+        $pdo = DBConnection::getConnection();
 
-    $allowedColumns = ['data_creacio', 'titol'];
-    if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
+        $allowedColumns = ['data_creacio', 'titol'];
+        if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
 
-    $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+        $direction = strtoupper($direction);
+        if (!in_array($direction, ['ASC','DESC'])) {
+            $direction = 'DESC';
+        }
 
-    $stmt = $pdo->prepare(
-        "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-        FROM articles a
-        LEFT JOIN usuaris u ON a.autor_id = u.id
-        ORDER BY $orderBy $direction
-        LIMIT :limit OFFSET :offset"
-    );
-
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-    $stmt->execute();
-
-    $results = [];
-    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        $results[] = new Article(
-            $row['id'],
-            $row['titol'],
-            $row['cos'],
-            $row['imatge_url'],
-            $row['autor_id'],
-            $row['autor_nom'],
-            $row['data_creacio']
+        $stmt = $pdo->prepare(
+            "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
+            FROM articles a
+            LEFT JOIN usuaris u ON a.autor_id = u.id
+            ORDER BY $orderBy $direction
+            LIMIT :limit OFFSET :offset"
         );
-    }
 
-    return $results;
-    }
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
 
+        $results = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $results[] = new Article(
+                $row['id'],
+                $row['titol'],
+                $row['cos'],
+                $row['imatge_url'],
+                $row['autor_id'],
+                $row['autor_nom'],
+                $row['data_creacio']
+            );
+        }
+
+        return $results;
+    }
 
     // Comptar articles publicats de l'usuari
     public static function countByUser($userId) {
@@ -154,14 +156,22 @@ class ArticleDAO {
     }
 
     // Llistar tots els articles de l'usuari en concret amb un limit i offset per la pàginació
-    public static function listByUser($userId, $limit, $offset) {
+    public static function listByUser($userId, $limit, $offset, $orderBy = 'data_creacio', $direction = 'ASC') {
         $pdo = DBConnection::getConnection();
 
+        $allowedColumns = ['data_creacio', 'titol'];
+        if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
+
+        $direction = strtoupper($direction);
+        if (!in_array($direction, ['ASC','DESC'])) {
+            $direction = 'DESC';
+        }
+
         $sql = "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-                    FROM articles a
+                FROM articles a
                 LEFT JOIN usuaris u ON a.autor_id = u.id
                 WHERE a.autor_id = :uid
-                ORDER BY data_creacio DESC
+                ORDER BY $orderBy $direction
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $pdo->prepare($sql);

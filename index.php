@@ -21,6 +21,7 @@ require_once BASE_PATH . '/app/controller/session-controller.php';
 require_once BASE_PATH . '/app/controller/cookie-controller.php';
 require_once BASE_PATH . '/app/controller/article-controller.php';
 require_once BASE_PATH . '/app/controller/user-controller.php';
+require_once BASE_PATH . '/app/controller/admin-controller.php';
 
 // Instancias
 $main    = new MainController();
@@ -29,6 +30,7 @@ $session = new SessionController();
 $cookies = new CookieController();
 $article = new ArticleController();
 $user    = new UserController();
+$admin   = new AdminController();
 
 // Iniciar sesión
 $session->start();

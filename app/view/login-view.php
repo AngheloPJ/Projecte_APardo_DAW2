@@ -25,13 +25,13 @@ if ($error) $errors[] = $error;
 
         <form class="formulario-login" method="post" action="<?= BASE_URL ?>login-submit">
             <div class="input-group">
-                <label for="user">Usuario o Correo</label>
                 <input type="text" id="user" name="user" placeholder="correo@sapalomera.cat" value="<?= htmlspecialchars($_POST['user'] ?? '') ?>">
+                <label for="user">Usuario o Correo</label>
             </div>
 
             <div class="input-group">
-                <label for="contrasenya">Contraseña</label>
                 <input type="password" id="contrasenya" name="contrasenya" placeholder="***************">
+                <label for="contrasenya">Contraseña</label>
             </div>
 
             <div class="form-opciones">

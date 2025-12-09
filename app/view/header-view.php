@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
 </head>
 <body>
-    <header class="header">
+    <header class="header" role="banner">
         <div class="header-left">
             <a href="<?= BASE_URL ?>home"><h1 class="titulo_principal">Backend</h1></a>
         </div>
@@ -38,7 +38,7 @@
                     <button class="dropbtn">
                         <img src="<?= BASE_URL ?>public/assets/img/icons/settings-icon.svg" alt="Ajustes" class="icon"> &#9662;
                     </button>
-                    <div class="dropdown-content">
+                    <div class="dropdown-content" aria-label="Menú de ajustes">
                         <?php if ($currentUser->isAdmin()): ?>
                             <!-- Opciones de Administrador -->
                             <a href="<?= BASE_URL ?>article/create">Crear artículo</a>
@@ -55,7 +55,7 @@
             <?php else: ?>
                 <div class="dropdown">
                     <button class="dropbtn">Cuenta</button>
-                    <div class="dropdown-content">
+                    <div class="dropdown-content" aria-label="Menú de cuenta">
                         <a href="<?= BASE_URL ?>login">Iniciar sesión</a>
                         <a href="<?= BASE_URL ?>register">Registrarse</a>
                     </div>

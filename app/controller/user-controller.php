@@ -2,31 +2,62 @@
 
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/model/entity/User.php';
+require_once BASE_PATH . '/app/controller/session-controller.php';
 
 class UserController {
-    public function showUserProfile() {
-        require BASE_PATH . '/app/view/profile-view.php';
+
+    private $session;
+    private $user;
+
+    public function __construct() {
+        $this->session = new SessionController();
+        $this->session->start();
+        $this->user = $this->session->getUser();
     }
 
-    public function showEditForm() {
-        $session = new SessionController();
-        $user = $session->getUser();
-
-        if (!$user) {
+    /**
+     * Mostrar perfil de usuario (propio)
+     */
+    public function showUserProfile() {
+        if (!$this->user) {
             header("Location: " . BASE_URL . "login");
             exit;
         }
 
+        $isProfile = true;
+        $user = $this->user;
         require BASE_PATH . '/app/view/profile-view.php';
     }
 
+    /**
+     * Mostrar formulario de edición de perfil propio
+     */
+    public function showEditForm() {
+        if (!$this->user) {
+            header("Location: " . BASE_URL . "login");
+            exit;
+        }
+
+        $isProfile = true;
+        $user = $this->user;
+        require BASE_PATH . '/app/view/profile-view.php';
+    }
+
+    /**
+     * Guardar cambios de perfil propio
+     */
     public function editSubmit() {
-        $userId = $_SESSION['user_id'];
+        if (!$this->user) {
+            header("Location: " . BASE_URL . "login");
+            exit;
+        }
+
+        $userId = $this->user->getId();
         $user = UserDAO::getById($userId);
 
         if (!$user) {
             http_response_code(404);
-            require_once BASE_PATH . '/public/errors/404-view.php';
+            require BASE_PATH . '/public/errors/404-view.php';
             exit();
         }
 
@@ -35,8 +66,10 @@ class UserController {
         $currentPass = $_POST['pass'] ?? '';
         $newPass     = $_POST['pass-nueva'] ?? '';
 
+        // Verificar contraseña actual
         if (!empty($currentPass) && !password_verify($currentPass, $user->getPassword())) {
             $errorMsg = 'Contraseña actual incorrecta.';
+            $isProfile = true;
             require BASE_PATH . '/app/view/profile-view.php';
             return;
         }
@@ -50,17 +83,84 @@ class UserController {
             $changedPass = true;
         }
 
-        UserDAO::updateCredentials($user);
+        // Avatar
+        if (!empty($_FILES['avatar']['tmp_name'])) {
+            $avatarPath = '/public/uploads/avatars/' . $user->getId() . '.png';
+            move_uploaded_file($_FILES['avatar']['tmp_name'], BASE_PATH . $avatarPath);
+            $user->setAvatar($avatarPath);
+        }
+
+        UserDAO::updateAll($user);
 
         $successMsg = 'Perfil actualizado correctamente.';
         if ($changedPass) {
             $successMsg .= ' ¡Contraseña actualizada!';
         }
 
+        $isProfile = true;
         require BASE_PATH . '/app/view/profile-view.php';
     }
 
+    /**
+     * Mostrar formulario de edición de cualquier usuario (admin)
+     */
+    public function showEditUser($id) {
+        if (!$this->user || !$this->user->isAdmin()) {
+            header("Location: " . BASE_URL . "home");
+            exit;
+        }
 
+        $user = UserDAO::getById($id);
+        if (!$user) {
+            http_response_code(404);
+            require BASE_PATH . '/public/errors/404-view.php';
+            exit();
+        }
+
+        $isProfile = false;
+        require BASE_PATH . '/app/view/profile-view.php';
+    }
+
+    /**
+     * Guardar cambios de cualquier usuario (admin)
+     */
+    public function editUserSubmit($id) {
+        if (!$this->user || !$this->user->isAdmin()) {
+            header("Location: " . BASE_URL . "home");
+            exit;
+        }
+
+        $user = UserDAO::getById($id);
+        if (!$user) {
+            http_response_code(404);
+            require BASE_PATH . '/public/errors/404-view.php';
+            exit();
+        }
+
+        $username = trim($_POST['username'] ?? '');
+        $email    = trim($_POST['email'] ?? '');
+        $rol      = $_POST['rol'] ?? $user->getRol();
+        $newPass  = $_POST['pass-nueva'] ?? '';
+
+        $user->setUsername($username);
+        $user->setEmail($email);
+        $user->setRol($rol);
+
+        if (!empty($newPass)) {
+            $user->setPassword(password_hash($newPass, PASSWORD_DEFAULT));
+        }
+
+        // Avatar
+        if (!empty($_FILES['avatar']['tmp_name'])) {
+            $avatarPath = '/public/uploads/avatars/' . $user->getId() . '.png';
+            move_uploaded_file($_FILES['avatar']['tmp_name'], BASE_PATH . $avatarPath);
+            $user->setAvatar($avatarPath);
+        }
+
+        UserDAO::updateAll($user);
+
+        $successMsg = 'Usuario actualizado correctamente.';
+        $isProfile = false;
+        require BASE_PATH . '/app/view/profile-view.php';
+    }
 }
-
-?>

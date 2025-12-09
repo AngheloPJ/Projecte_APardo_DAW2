@@ -7,7 +7,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prj 1 | APardo</title>
+    <title>Backend | APardo</title>
 
     <!-- Componentes -->
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/home.css">
@@ -15,17 +15,20 @@ require_once BASE_PATH . '/app/view/header-view.php';
 
 <body>
     
-<main>
+<main role="main">
     <div class="filtros">
             <!-- Filtro ordenar por -->
             <div class="ordenar-articulos">
-                <form method="post">
+                <form method="get">
+                    <input type="hidden" name="p" value="1">
+                    <input type="hidden" name="total" value="<?= $perPage ?>">
+
                     <label for="order">Ordenar por:</label>
-                    <select name="order" id="order" onchange="this.form.submit()">
-                        <option value="data_creacio|ASC" <?= ($orderBy == 'data_creacio' && $direction == 'ASC') ? 'selected' : '' ?>>Fecha ↑</option>
-                        <option value="data_creacio|DESC" <?= ($orderBy == 'data_creacio' && $direction == 'DESC') ? 'selected' : '' ?>>Fecha ↓</option>
-                        <option value="titol|ASC" <?= ($orderBy == 'titol' && $direction == 'ASC') ? 'selected' : '' ?>>Título ↑</option>
-                        <option value="titol|DESC" <?= ($orderBy == 'titol' && $direction == 'DESC') ? 'selected' : '' ?>>Título ↓</option>
+                    <select name="orderBy" id="order" onchange="this.form.submit()">
+                        <option value="data_creacio_ASC" <?= ($orderBy=='data_creacio' && $direction=='ASC')?'selected':'' ?>>Fecha ↑</option>
+                        <option value="data_creacio_DESC" <?= ($orderBy=='data_creacio' && $direction=='DESC')?'selected':'' ?>>Fecha ↓</option>
+                        <option value="titol_ASC" <?= ($orderBy=='titol' && $direction=='ASC')?'selected':'' ?>>Título ↑</option>
+                        <option value="titol_DESC" <?= ($orderBy=='titol' && $direction=='DESC')?'selected':'' ?>>Título ↓</option>
                     </select>
                 </form>
             </div>
@@ -35,6 +38,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
                 <form method="get" class="articles-per-page">
                     <label for="total">Articles per pàgina:</label>
                     <input type="hidden" name="p" value="1">
+
                     <select name="total" id="total" onchange="this.form.submit()">
                         <?php foreach ($options as $num): ?>
                             <option value="<?= $num ?>" <?= ($num == $perPage) ? 'selected' : '' ?>>
@@ -43,6 +47,8 @@ require_once BASE_PATH . '/app/view/header-view.php';
                             
                         <?php endforeach; ?>
                     </select>
+
+                    <input type="hidden" name="orderBy" value="<?= $orderBy ?>_<?= $direction ?>">
                 </form>
             </div>
     </div>
@@ -54,16 +60,18 @@ require_once BASE_PATH . '/app/view/header-view.php';
                 <div class="article">
                     <div class="imatge">
                         <?php if (!empty($article->getImatgeUrl())): ?>
-                            <img src="<?= BASE_URL . $article->getImatgeUrl() ?>" alt="Imatge de l'article" width="150">
+                            <img src="<?= BASE_URL . $article->getImatgeUrl() ?>" alt="Imatge de l'article: <?= htmlspecialchars($article->getTitol()) ?>" width="150">
                         <?php endif; ?>
                     </div>
                     
-                    <p><b>Títol:</b> <?= htmlspecialchars($article->getTitol()) ?></p>
-                    <p><b>Cos:</b> <?= htmlspecialchars($article->getCos()) ?></p>
+                    <div class="contenido">
+                        <h3 class="titulo"><?= htmlspecialchars($article->getTitol()) ?></h3>
+                        <p class="descripcion"><?= htmlspecialchars($article->getCos()) ?></p>
+                    </div>
                     
                     <div class="creditos">
-                        <p><b>Autor:</b> <?= htmlspecialchars($article->getAuthorNom()) ?></p>
-                        <p><b>Data creació:</b> <?= $article->getDataCreacio() ?></p>
+                        <p><?= htmlspecialchars($article->getAuthorNom()) ?></p>
+                        <p><?= $article->getDataCreacio() ?></p>
                     </div>
                     
                     <!-- Botones de acción en cada artículo -->
@@ -73,10 +81,11 @@ require_once BASE_PATH . '/app/view/header-view.php';
                         <a href="<?= BASE_URL ?>article/edit/<?= $article->getId() ?>">
                             <button class="btn-edit">Modificar</button>
                         </a>
-                        <a href="<?= BASE_URL ?>article/delete/<?= $article->getId() ?>" 
-                           onclick="return confirm('¿Estás seguro que quieres eliminar este artículo?')">
-                            <button class="btn-delete">Eliminar</button>
-                        </a>
+                        
+                        <form action="<?= BASE_URL ?>article/delete/<?= $article->getId() ?>" method="post" onsubmit="return confirm('¿Estás seguro que quieres eliminar este artículo?')">
+                            <button type="submit" class="btn-delete">Eliminar</button>
+                        </form>
+
                     </div>
                     <?php endif; ?>
                 </div>
@@ -95,25 +104,25 @@ require_once BASE_PATH . '/app/view/header-view.php';
 
             <!-- Botón anterior -->
             <?php if ($page > 1): ?>
-                <a href="<?= $currentUri ?>?p=<?= $page - 1 ?>&total=<?= $perPage ?>">
+                <a href="<?= $currentUri ?>?p=<?= $page - 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
                     <button>←</button>
                 </a>
             <?php endif; ?>
-            
+
             <!-- Botones de número -->
             <?php foreach ($pageOptions as $p): ?>
                 <?php if ($p == $page): ?>
                     <button class="actual" disabled><?= $p ?></button>
                 <?php else: ?>
-                    <a href="<?= $currentUri ?>?p=<?= $p ?>&total=<?= $perPage ?>">
+                    <a href="<?= $currentUri ?>?p=<?= $p ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
                         <button><?= $p ?></button>
                     </a>
                 <?php endif; ?>
             <?php endforeach; ?>
-            
+
             <!-- Botón siguiente -->
             <?php if ($page < $totalPages): ?>
-                <a href="<?= $currentUri ?>?p=<?= $page + 1 ?>&total=<?= $perPage ?>">
+                <a href="<?= $currentUri ?>?p=<?= $page + 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
                     <button>→</button>
                 </a>
             <?php endif; ?>

@@ -2,31 +2,79 @@
 
 require_once BASE_PATH . '/app/model/dao/ArticleDAO.php';
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
+require_once BASE_PATH . '/app/controller/session-controller.php';
 
 class ArticleController {
 
-    public function showCreateForm() {
-        require BASE_PATH . '/app/view/article-create-view.php';
+    private $session;
+
+    public function __construct() {
+        $this->session = new SessionController();
+        $this->session->start();
     }
 
+    /**
+     * Mostrar formulario de creación/edición de artículo
+     * - Si $id es null → crear
+     * - Si $id tiene valor → editar
+     */
+    public function showForm($id = null) {
+        if (!$this->session->isLogged()) {
+            header("Location: " . BASE_URL . "home");
+            exit();
+        }
+
+        $currentUser = $this->session->getUser();
+        if (!$currentUser) {
+            header("Location: " . BASE_URL . "home");
+            exit();
+        }
+
+        $errorMsg = '';
+        $article = null;
+
+        if ($id !== null) {
+            $article = ArticleDAO::getById($id);
+            if (!$article) {
+                http_response_code(404);
+                require BASE_PATH . '/public/errors/404-view.php';
+                exit();
+            }
+
+            // Verificar permisos
+            if ($currentUser->getId() != $article->getAuthorId() && !$currentUser->isAdmin()) {
+                header("Location: " . BASE_URL . "home");
+                exit();
+            }
+        }
+
+        require BASE_PATH . '/app/view/article-view.php';
+    }
+
+    /**
+     * Crear artículo
+     */
     public function create() {
+        if (!$this->session->isLogged()) {
+            header("Location: " . BASE_URL . "home");
+            exit();
+        }
+
+        $currentUser = $this->session->getUser();
+        if (!$currentUser) {
+            header("Location: " . BASE_URL . "home");
+            exit();
+        }
+
         if (!isset($_POST['titol'], $_POST['cos'])) {
             header("Location: " . BASE_URL . "article/create");
-            exit;
+            exit();
         }
 
         $titol = trim($_POST['titol']);
         $cos = trim($_POST['cos']);
-
-        $userId = $_SESSION['user_id'] ?? null;
-        if (!$userId) {
-            header("Location: " . BASE_URL . "login");
-            exit;
-        }
-
-        $user = UserDAO::getById($userId);
-
         $imatgeUrl = null;
+
         if (isset($_FILES['imatge']) && $_FILES['imatge']['error'] === 0) {
             $ext = pathinfo($_FILES['imatge']['name'], PATHINFO_EXTENSION);
             $nombreArchivo = 'article_' . time() . '.' . $ext;
@@ -35,31 +83,29 @@ class ArticleController {
             $imatgeUrl = 'public/assets/img/articles/' . $nombreArchivo;
         }
 
-        ArticleDAO::create($titol, $cos, $imatgeUrl, $user);
+        ArticleDAO::create($titol, $cos, $imatgeUrl, $currentUser);
         header("Location: " . BASE_URL . "my-articles");
-        exit;
+        exit();
     }
 
-    public function showEditForm($id) {
-        $article = ArticleDAO::getById($id);
-        if (!$article) {
-            http_response_code(404);
-            require_once BASE_PATH . '/public/errors/404-view.php';
+    /**
+     * Editar artículo
+     */
+    public function edit() {
+        if (!$this->session->isLogged()) {
+            header("Location: " . BASE_URL . "home");
             exit();
         }
 
-        if ($_SESSION['user_id'] != $article->getAuthorId() && !UserDAO::getById($_SESSION['user_id'])->isAdmin()) {
+        $currentUser = $this->session->getUser();
+        if (!$currentUser) {
             header("Location: " . BASE_URL . "home");
-            exit;
+            exit();
         }
 
-        require BASE_PATH . '/app/view/article-edit-view.php';
-    }
-
-    public function edit() {
         if (!isset($_POST['id'], $_POST['titol'], $_POST['cos'])) {
             header("Location: " . BASE_URL . "home");
-            exit;
+            exit();
         }
 
         $id = (int)$_POST['id'];
@@ -69,18 +115,15 @@ class ArticleController {
         $article = ArticleDAO::getById($id);
         if (!$article) {
             http_response_code(404);
-            require_once BASE_PATH . '/public/errors/404-view.php';
+            require BASE_PATH . '/public/errors/404-view.php';
             exit();
         }
 
-        // Validar permisos
-        $currentUser = UserDAO::getById($_SESSION['user_id']);
-        if ($_SESSION['user_id'] != $article->getAuthorId() && !$currentUser->isAdmin()) {
+        if ($currentUser->getId() != $article->getAuthorId() && !$currentUser->isAdmin()) {
             header("Location: " . BASE_URL . "home");
-            exit;
+            exit();
         }
 
-        // Manejo de imagen
         $imatgeUrl = $article->getImatgeUrl();
         if (isset($_FILES['imatge']) && $_FILES['imatge']['error'] === 0) {
             $ext = pathinfo($_FILES['imatge']['name'], PATHINFO_EXTENSION);
@@ -90,7 +133,6 @@ class ArticleController {
             $imatgeUrl = 'public/assets/img/articles/' . $nombreArchivo;
         }
 
-        // Actualizar artículo
         $article->setTitol($titol);
         $article->setCos($cos);
         $article->setImatgeUrl($imatgeUrl);
@@ -98,26 +140,38 @@ class ArticleController {
         ArticleDAO::update($article);
 
         header("Location: " . BASE_URL . "my-articles");
-        exit;
+        exit();
     }
 
-
+    /**
+     * Borrar artículo
+     */
     public function delete($id) {
-        $article = ArticleDAO::getById($id);
-        if (!$article) {
-            http_response_code(404);
-            require_once BASE_PATH . '/public/errors/404-view.php';
+        if (!$this->session->isLogged()) {
+            header("Location: " . BASE_URL . "home");
             exit();
         }
 
-        if ($_SESSION['user_id'] != $article->getAuthorId() && !UserDAO::getById($_SESSION['user_id'])->isAdmin()) {
+        $currentUser = $this->session->getUser();
+        if (!$currentUser) {
             header("Location: " . BASE_URL . "home");
-            exit;
+            exit();
+        }
+
+        $article = ArticleDAO::getById($id);
+        if (!$article) {
+            http_response_code(404);
+            require BASE_PATH . '/public/errors/404-view.php';
+            exit();
+        }
+
+        if ($currentUser->getId() != $article->getAuthorId() && !$currentUser->isAdmin()) {
+            header("Location: " . BASE_URL . "home");
+            exit();
         }
 
         ArticleDAO::deleteById($id);
         header("Location: " . BASE_URL . "my-articles");
-        exit;
+        exit();
     }
-
 }

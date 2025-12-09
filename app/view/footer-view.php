@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/footer.css">
 </head>
 <body>
-    <footer>
+    <footer role="contentinfo">
         <p>Footer</p>
         <div class="footer-buttons">
             <button>Privacitat</button>

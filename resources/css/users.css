@@ -1,0 +1,135 @@
+/* Contenedor principal */
+.admin-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    background-color: var(--color-secondary);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Título */
+.admin-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: var(--color-text-primary);
+    font-size: 1.8rem;
+}
+
+/* Tabla de usuarios */
+.usuarios-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.usuarios-table th,
+.usuarios-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.usuarios-table th {
+    background-color: var(--color-boton-primary);
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.usuarios-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Acciones */
+.acciones a {
+    margin-right: 10px;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.3s ease;
+}
+
+.btn-editar {
+    background-color: var(--color-boton-secondary);
+    color: #fff;
+}
+
+.btn-borrar {
+    background-color: var(--color-boton-third);
+    color: #fff;
+}
+
+.btn-editar:hover {
+    background-color: var(--color-btn-secondary-hover);
+}
+
+.btn-borrar:hover {
+    background-color: var(--color-btn-third-hover);
+}
+
+/* Paginación */
+.pagination {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.pagination a {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #fff;
+    background-color: var(--color-boton-primary);
+    transition: 0.2s ease;
+}
+
+.pagination a:hover {
+    background-color: var(--color-boton-hover);
+}
+
+.pagination a.active {
+    cursor: not-allowed;
+    background-color: var(--color-boton-selected);
+}
+
+/* Mensaje de no usuarios */
+.no-articles {
+    text-align: center;
+    padding: 2em;
+    font-size: 1.1rem;
+    color: var(--color-text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .usuarios-table th,
+    .usuarios-table td {
+        padding: 10px 8px;
+    }
+
+    .acciones a {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .usuarios-table th,
+    .usuarios-table td {
+        padding: 8px 5px;
+        font-size: 0.85rem;
+    }
+
+    .acciones a {
+        padding: 4px 6px;
+        font-size: 0.75rem;
+    }
+}

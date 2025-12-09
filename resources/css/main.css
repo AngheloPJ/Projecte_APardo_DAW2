@@ -44,7 +44,12 @@
     --color-text-secondary: #b8b5b5;
 
     --color-boton-primary: #000;
-    --color-boton-secondary: #4056ff;
+
+    --color-boton-secondary: #007bff;
+    --color-btn-secondary-hover: #0066d6;
+    --color-boton-third: #f44336;
+    --color-btn-third-hover: #d32f2f;
+
     --color-boton-hover: #6053f7;
     --color-boton-selected: #6053f7;
 

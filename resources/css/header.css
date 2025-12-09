@@ -17,6 +17,10 @@
     color: var(--color-text-primary);
 }
 
+.header-left a {
+    text-decoration: none;
+}
+
 /* Header right */
 .header-right {
     display: flex;
@@ -63,6 +67,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    min-height: 40px;
 }
 
 .dropbtn:hover {
@@ -75,7 +80,8 @@
     right: 0;
     background-color: var(--color-secondary);
     width: max-content;
-    min-width: 100%;
+    min-width: 160px;
+    max-width: 250px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
     overflow: hidden;
@@ -91,7 +97,7 @@
     white-space: nowrap;
 }
 
-.dropdown:hover .dropdown-content {
+.dropdown:focus-within .dropdown-content {
     display: block;
 }
 
@@ -109,20 +115,184 @@
     flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
+/* Diseño focus - Accesibilidad */
+button:focus,
+a:focus {
+    outline: 2px solid var(--color-boton-hover);
+    outline-offset: 3px;
+}
+
+
+/* Tablets grandes (769px - 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .header-left .titulo_principal {
+        font-size: 1.6em;
+    }
+
+    .header-right button,
+    .dropbtn {
+        font-size: 0.9em;
+        padding: 0.4em 0.8em;
+    }
+}
+
+/* Tablets pequeñas (481px - 768px) */
+@media (max-width: 768px) and (min-width: 481px) {
     .header {
-        width: 100%;
+        flex-direction: row;
+        padding: 0.8em 1.2em;
+        gap: 10px;
     }
 
     .header-left .titulo_principal {
-        font-size: 1.4em;
+        font-size: 1.3em;
     }
 
     .header-right {
-        width: 50%;
+        justify-content: flex-end;
+        gap: 6px;
     }
 
-    .header-right button {
-        padding: 0.20em 0.20em;
+    .header-right button,
+    .dropbtn {
+        padding: 0.4em 0.7em;
+        font-size: 0.8em;
+        min-height: 36px;
+    }
+
+    .dropdown-content {
+        min-width: 150px;
+    }
+
+    .dropdown-content a {
+        padding: 10px 14px;
+        font-size: 0.85em;
+    }
+}
+
+/* Móviles grandes (376px - 480px) */
+@media (max-width: 480px) and (min-width: 376px) {
+    .header {
+        flex-direction: row;
+        padding: 0.7em 1em;
+        gap: 8px;
+    }
+
+    .header-left .titulo_principal {
+        font-size: 1.1em;
+    }
+
+    .header-right {
+        justify-content: flex-end;
+        gap: 5px;
+    }
+
+    .header-right button,
+    .dropbtn {
+        padding: 0.35em 0.6em;
+        font-size: 0.7em;
+        min-height: 32px;
+        gap: 4px;
+    }
+
+    .dropbtn .icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-content {
+        right: 0;
+        left: auto;
+        min-width: 150px;
+        max-width: 200px;
+        white-space: normal;
+    }
+
+    .dropdown-content a {
+        padding: 9px 12px;
+        font-size: 0.75em;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+}
+
+/* Móviles pequeños (hasta 375px) */
+@media (max-width: 376px) {
+    .header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6em 0.8em;
+        gap: 6px;
+    }
+
+    .header-left .titulo_principal {
+        font-size: 1em;
+    }
+
+    .header-right {
+        display: flex;
+        justify-content: flex-end;
+        gap: 4px;
+    }
+
+    .header-right button,
+    .dropbtn {
+        padding: 0.3em 0.5em;
+        font-size: 0.65em;
+        min-height: 30px;
+        gap: 3px;
+        justify-content: center;
+    }
+
+    .dropbtn .icon {
+        width: 14px;
+        height: 14px;
+    }
+
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-content {
+        right: 0;
+        left: auto;
+        min-width: 140px;
+        max-width: 180px;
+        white-space: normal;
+    }
+
+    .dropdown-content a {
+        padding: 8px 10px;
+        font-size: 0.7em;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+}
+
+/* Móviles muy pequeños (hasta 320px) */
+@media (max-width: 320px) {
+    .header {
+        padding: 0.5em 0.6em;
+    }
+
+    .header-left .titulo_principal {
+        font-size: 0.9em;
+    }
+
+    .header-right button,
+    .dropbtn {
+        padding: 0.25em 0.4em;
+        font-size: 0.6em;
+        min-height: 28px;
+    }
+
+    .dropdown-content a {
+        padding: 7px 9px;
+        font-size: 0.65em;
     }
 }
