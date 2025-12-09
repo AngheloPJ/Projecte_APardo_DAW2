@@ -129,12 +129,12 @@ main {
 }
 
 .creditos p:first-child {
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--color-text-primary);
     font-weight: 600;
 }
 
 .creditos p:last-child {
-    color: rgba(0, 0, 0, 0.45);
+    color: #252525;
     font-size: 0.85rem;
     font-style: normal;
 }
