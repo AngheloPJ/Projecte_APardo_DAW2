@@ -2,6 +2,7 @@
 
 class User {
     private $id;
+    // private $avatar_url;
     private $nom;
     private $email;
     private $rol;
@@ -9,6 +10,7 @@ class User {
 
     public function __construct($id, $nom, $email, $rol = null, $contrasenya = null) {
         $this->id = $id;
+        // $this->avatar_url = $avatar_url;
         $this->nom = $nom;
         $this->email = $email;
         $this->rol = $rol;
@@ -17,6 +19,7 @@ class User {
 
     // Getters
     public function getId() { return $this->id; }
+    // public function getAvatarURL() { return $this->getAvatarURL; }
     public function getUsername() { return $this->nom; }
     public function getEmail() { return $this->email; }
     public function getRol() { return $this->rol; }

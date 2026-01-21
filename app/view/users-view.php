@@ -5,6 +5,7 @@ $errors = [];
 if (!isset($error)) $error = null;
 if ($error) $errors[] = $error;
 ?>
+
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
@@ -18,13 +19,13 @@ if ($error) $errors[] = $error;
     <div class="admin-container">
         <h2>Gestión de Usuarios</h2>
 
-        <table class="usuarios-table">
+        <table class="usuarios-table" role="lista-usuaris">
             <thead>
                 <tr>
-                    <th>Usuario</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
+                    <th role="columnheader">Usuario</th>
+                    <th role="columnheader">Email</th>
+                    <th role="columnheader">Rol</th>
+                    <th role="columnheader">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,7 +36,9 @@ if ($error) $errors[] = $error;
                     <td><?= htmlspecialchars($u->getRol()) ?></td>
                     <td class="acciones">
                         <a href="<?= BASE_URL ?>admin/users/edit/<?= $u->getId() ?>" class="btn-editar">Editar</a>
-                        <a href="<?= BASE_URL ?>admin/users/delete/<?= $u->getId() ?>" class="btn-borrar" onclick="return confirm('¿Seguro que quieres eliminar este usuario?')">Borrar</a>
+                        <?php if ($currentUser->getId() !== $u->getId()): ?>
+                            <a href="<?= BASE_URL ?>admin/users/delete/<?= $u->getId() ?>" class="btn-borrar" onclick="return confirm('¿Seguro que quieres eliminar este usuario?')">Borrar</a>
+                        <?php endif; ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

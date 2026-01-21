@@ -17,7 +17,10 @@ if ($error) $errors[] = $error;
 
 <main>
     <div class="contenedor-login">
-        <h2 class="titulo">REGISTER</h2>
+        <div class="login-head">
+            <button id="btn-volver"><a href="<?= BASE_URL ?>home">🠠</a></button>
+            <h2 class="titulo">REGISTRO</h2>
+        </div>
 
         <form class="formulario-login" method="post" action="<?= BASE_URL ?>register-submit">
             <div class="input-group">

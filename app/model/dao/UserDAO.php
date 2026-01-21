@@ -10,10 +10,11 @@ class UserDAO {
     */
 
     // CREATE (Crear)
-    public static function create($nom, $email, $passHash, $rol = 'user') {
+    public static function create($avatar_url, $nom, $email, $passHash, $rol = 'user') {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("INSERT INTO usuaris (nom, email, contrasenya, rol) 
-                               VALUES (:nom, :email, :pass, :rol)");
+        $stmt = $pdo->prepare("INSERT INTO usuaris (avatar_url, nom, email, contrasenya, rol) 
+                               VALUES (:avatar_url , :nom, :email, :pass, :rol)");
+        $stmt->bindValue(':avatar_url', $avatar_url, PDO::PARAM_STR);
         $stmt->bindValue(':nom', $nom, PDO::PARAM_STR);
         $stmt->bindValue(':email', $email, PDO::PARAM_STR);
         $stmt->bindValue(':pass', $passHash, PDO::PARAM_STR);
@@ -62,7 +63,7 @@ class UserDAO {
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$row) return null;
 
-        return new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
+        return new User($row['id'], $row['avatar_url'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
     }
 
     // READ (Leer) - Por email
@@ -203,7 +204,7 @@ class UserDAO {
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-
+        
         $results = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
             $results[] = new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);

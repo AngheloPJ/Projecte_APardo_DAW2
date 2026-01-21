@@ -103,10 +103,13 @@ class AdminController {
     public function delete($id) {
         $this->requireAdmin();
 
-        $user = UserDAO::getById($id);
-        if ($user) {
-            UserDAO::delete($user);
+        if ($id == this->currentUser->getId()) {
+            header('Location: ' . BASE_URL . 'admin/users');
+            exit;
         }
+
+        $user = UserDAO::getById($id);
+        if ($user) UserDAO::delete($user);
         header('Location: ' . BASE_URL . 'admin/users');
         exit;
     }

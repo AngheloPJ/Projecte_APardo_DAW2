@@ -25,13 +25,18 @@ $actionUrl = $isEdit ? BASE_URL . 'article/edit-submit' : BASE_URL . 'article/cr
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Backend | APardo</title>
+    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/main.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
 </head>
 <body>
 
 <main>
     <div class="contenidor">
-        <h2><?= $formTitle ?></h2>
+        
+        <div class="article-head">
+            <a id="btn-volver" href="<?= BASE_URL ?>home"><span>🠠</span></a>
+            <h2 class="titol"><?= $formTitle ?></h2>
+        </div>
 
         <?php if (!empty($errorMsg)): ?>
             <p class="error"><?= htmlspecialchars($errorMsg) ?></p>

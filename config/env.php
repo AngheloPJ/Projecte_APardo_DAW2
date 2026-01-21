@@ -13,4 +13,7 @@ define('BASE_PATH', __DIR__ . '/../');
 define('BASE_URL', 'http://localhost/Practiques/Backend/Projecte/Prj1/');
 define('BASE_VIEW', BASE_PATH . 'app/view/');
 
+/* ReCaptcha */
+define('RECAPTCHA_SITEKEY', '6LcLMBksAAAAACsKwI5X78FnPsLOe-9qTcICyWZk');
+define('RECAPTCHA_SECRET', '6LcLMBksAAAAAAk03mEjKLCjuBMhZFipsRJf7IxW');
 ?>

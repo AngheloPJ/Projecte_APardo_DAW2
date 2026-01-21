@@ -30,6 +30,16 @@ class LoginController {
         $remember  = isset($_POST['recordar']);
 
         $user = UserDAO::getByEmailOrName($userInput);
+        $attempts = $_SESSION['login_attempts'][$userInput]['contador'] ?? 0;
+        $captcha = $attempts >= 3;
+
+        if ($captcha) {
+            // Respuesta captcha
+            $token = $_POST['g-recaptcha-response'] ?? '';
+            if (empty($token) || !$this->verifyCaptcha()) {
+                $errors = "";
+            }
+        }
 
         if ($user && password_verify($password, $user->getPassword())) {
             // Iniciar sesión
@@ -90,7 +100,10 @@ class LoginController {
 
         $passwordErrors = $this->validatePassword($password);
         if (!empty($passwordErrors)) {
-            $error = implode(" ", $passwordErrors);
+            for ($i = 0; $i < $totalErrors; $i++) {
+                $error += $passwordErrors[i] + "\n";
+            }
+
             require BASE_PATH . '/app/view/register-view.php';
             return;
         }

@@ -18,6 +18,9 @@ class MainController {
     /* Mostrar todos los artículos */
     public function showAllArticles() {
 
+        // Vista actual
+        $currenView = 'Todos los artículos';
+
         // PAGINACIÓN
         $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
         $maxPerPage = 20;
@@ -69,6 +72,9 @@ class MainController {
             header("Location: " . BASE_URL . "login");
             exit;
         }
+
+        // Vista actual
+        $currenView = 'Mis artículos';
 
         $userId = $this->user->getId();
 

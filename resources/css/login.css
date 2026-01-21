@@ -48,6 +48,35 @@ footer {
 }
 
 /* Títulos dentro del login */
+.login-head {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    align-self: center;
+    margin-bottom: var(--spacing-md);
+}
+
+.login-head #btn-volver {
+    width: 40px;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--color-boton-primary);
+    color: var(--color-primary);
+    padding: 6px 8px;
+}
+
+.login-head #btn-volver a {
+    display: flex;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 1.3em;
+}
+
+.login-head .titulo {
+    flex: 1;
+}
+
 .logotipo-titulo {
     font-family: "Tomorrow-Medium", sans-serif;
     color: var(--color-text-base);
@@ -58,7 +87,6 @@ footer {
     text-align: center;
     font-size: 35px;
     color: var(--color-text-base);
-    margin-bottom: var(--spacing-md);
 }
 
 /* Formularios */
@@ -292,8 +320,13 @@ footer {
         padding: 1.5rem;
     }
 
+    .login-head #btn-volver {
+        width: 20px;
+        padding: 4px 15px;
+    }
+
     .titulo {
-        font-size: 24px;
+        font-size: 1.8em;
     }
 
     .logotipo-titulo {
@@ -356,9 +389,13 @@ footer {
         border-radius: 8px;
     }
 
+    .login-head #btn-volver {
+        width: 20px;
+        padding: 4px 20px;
+    }
+
     .titulo {
-        font-size: 22px;
-        margin-bottom: 1rem;
+        font-size: 2em;
     }
 
     .logotipo-titulo {

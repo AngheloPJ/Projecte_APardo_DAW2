@@ -19,7 +19,6 @@ Thumbs.db
 
 # 🪄 Arxius del servidor local
 .env
-.htaccess
 composer.lock
 
 # 🧰 Altres arxius que no cal pujar

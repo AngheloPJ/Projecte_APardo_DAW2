@@ -12,9 +12,13 @@
 /* Header left */
 .header-left .titulo_principal {
     margin: 0;
-    font-size: 1.8em;
+    font-size: 2em;
     text-transform: uppercase;
     color: var(--color-text-primary);
+}
+
+.header-left:hover {
+    color: var(--color-boton-hover);
 }
 
 .header-left a {
@@ -45,6 +49,7 @@
 
 .header-right button:hover {
     background-color: var(--color-boton-hover);
+    transform: 5s;
 }
 
 /* Dropdown */
@@ -70,8 +75,19 @@
     min-height: 40px;
 }
 
+.crear-article {
+    background: radial-gradient(circle, rgba(107, 107, 107, 1) 0%, rgba(0, 0, 0, 1) 100%);
+}
+
+.crear-article:hover {
+    background: none;
+    background: radial-gradient(circle, var(--color-boton-hover) 50%, rgba(0, 0, 0, 1) 100%);
+    transition: 0.2s;
+}
+
 .dropbtn:hover {
     background-color: var(--color-boton-hover);
+    transition: 0.2s;
 }
 
 .dropdown-content {
@@ -104,6 +120,7 @@
 /* Hover submenus */
 .dropdown-content a:hover {
     background-color: var(--color-boton-hover);
+    transition: 0.2s;
     color: #fff;
 }
 
@@ -119,6 +136,7 @@
 button:focus,
 a:focus {
     outline: 2px solid var(--color-boton-hover);
+    transition: 0.2s;
     outline-offset: 3px;
 }
 

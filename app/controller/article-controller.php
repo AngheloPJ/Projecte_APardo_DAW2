@@ -75,6 +75,8 @@ class ArticleController {
         $cos = trim($_POST['cos']);
         $imatgeUrl = null;
 
+        
+
         if (isset($_FILES['imatge']) && $_FILES['imatge']['error'] === 0) {
             $ext = pathinfo($_FILES['imatge']['name'], PATHINFO_EXTENSION);
             $nombreArchivo = 'article_' . time() . '.' . $ext;
@@ -173,5 +175,9 @@ class ArticleController {
         ArticleDAO::deleteById($id);
         header("Location: " . BASE_URL . "my-articles");
         exit();
+    }
+
+    public function toastNotification() {
+        
     }
 }

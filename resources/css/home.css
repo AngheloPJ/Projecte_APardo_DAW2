@@ -18,6 +18,16 @@ main {
     padding: 0 15px;
 }
 
+main .vista-actual {
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+main .vista-actual h1 {
+    text-align: center;
+    font-size: 1.8em;
+}
+
 .articles .titol {
     text-transform: uppercase;
     margin-bottom: 10px;
@@ -81,7 +91,9 @@ main {
     height: 220px;
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('../../public/assets/img/articles/NoImgDisplay.webp');
+    background-size: cover;
+    background-position: center;
 }
 
 .article img {

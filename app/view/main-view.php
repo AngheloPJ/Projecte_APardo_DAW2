@@ -16,6 +16,10 @@ require_once BASE_PATH . '/app/view/header-view.php';
 <body>
     
 <main role="main">
+    <div class="vista-actual">
+        <h1><?= $currenView ?></h1>
+    </div>
+
     <div class="filtros">
             <!-- Filtro ordenar por -->
             <div class="ordenar-articulos">
@@ -60,7 +64,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
                 <div class="article">
                     <div class="imatge">
                         <?php if (!empty($article->getImatgeUrl())): ?>
-                            <img src="<?= BASE_URL . $article->getImatgeUrl() ?>" alt="Imatge de l'article: <?= htmlspecialchars($article->getTitol()) ?>" width="150">
+                            <img src="<?= BASE_URL . $article->getImatgeUrl() ?>" alt="Imatge de l'article: <?= htmlspecialchars($article->getTitol()) ?>" width="150" aria-role="tarjeta-articulo">
                         <?php endif; ?>
                     </div>
                     
