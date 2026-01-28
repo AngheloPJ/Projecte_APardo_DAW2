@@ -7,7 +7,7 @@ class DBConnection {
         if (self::$conn === null) {
             try {
                 self::$conn = new PDO(
-                    'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8',
+                    DSN,
                     DB_USER,
                     DB_PASSWORD
                 );

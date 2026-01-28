@@ -10,7 +10,7 @@ if ($error) $errors[] = $error;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | APardo</title>
+    <title>Registro | APardo</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/login.css">
 </head>
 <body>
@@ -43,7 +43,7 @@ if ($error) $errors[] = $error;
                 <label for="confirm-pass">Repetir contraseña</label>
             </div>
 
-            <button type="submit" class="btn-login">REGISTRARSE</button>
+            <button type="submit" class="btn-register">REGISTRARSE</button>
 
             <?php if ($errors): ?>
                 <div class="errores">
@@ -53,7 +53,7 @@ if ($error) $errors[] = $error;
 
             <p class="registro-texto">
                 ¿Ya tienes una cuenta? 
-                <a href="<?= BASE_URL ?>login" class="link-registro">
+                <a href="<?= BASE_URL ?>register" class="link-registro">
                     ¡Inicia sesión!
                 </a>
             </p>

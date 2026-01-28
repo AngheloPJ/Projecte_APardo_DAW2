@@ -36,4 +36,5 @@ Route::post('article/edit-submit', 'ArticleController@edit');
 Route::get('article/delete/{id}', 'ArticleController@delete');
 Route::post('article/delete/{id}', 'ArticleController@delete');
 
+Route::get('article/search', 'MainController@searchArticles');
 Route::get('article/{id}', 'MainController@showArticle');

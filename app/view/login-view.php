@@ -21,7 +21,11 @@ if ($error) $errors[] = $error;
 
 <main>
     <div class="contenedor-login">
-        <h2 class="titulo">LOGIN</h2>
+
+        <div class="login-head">
+            <a id="btn-volver" href="<?= BASE_URL ?>home"><span>🠠</span></a>
+            <h2 class="titulo">LOGIN</h2>
+        </div>
 
         <form class="formulario-login" method="post" action="<?= BASE_URL ?>login-submit">
             <div class="input-group">
@@ -41,6 +45,10 @@ if ($error) $errors[] = $error;
                 </div>
                 <a href="#" class="link-olvidada">Contraseña olvidada</a>
             </div>
+
+            <?php if (!empty($captchaRequired)): ?>
+                <div class="g-recaptcha" data-sitekey="<?= RECAPTCHA_SITEKEY ?>"></div>
+            <?php endif; ?>
 
             <?php if ($errors): ?>
                 <div class="errores">

@@ -1,5 +1,12 @@
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
 /* Contenedor principal */
 .admin-container {
+    flex: 1 0 auto;
     max-width: 1200px;
     margin: 40px auto;
     background-color: var(--color-secondary);

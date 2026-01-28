@@ -21,6 +21,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
     </div>
 
     <div class="filtros">
+        
             <!-- Filtro ordenar por -->
             <div class="ordenar-articulos">
                 <form method="get">
@@ -57,6 +58,13 @@ require_once BASE_PATH . '/app/view/header-view.php';
             </div>
     </div>
 
+    <div class="barra-reserca">
+        <form action="<?= BASE_URL ?>article/search" method="GET">
+            <input type="search" name="keyword" id="reserca" placeholder="Cercar..." value=<?= htmlspecialchars($_GET['keyword'] ?? '') ?>>
+            <input type="submit" value="Cercar">
+        </form>
+    </div>
+
     <div class="contenidor">
         <?php if (count($articles) > 0): ?>
         <div class="articles">
@@ -80,7 +88,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
                     
                     <!-- Botones de acción en cada artículo -->
                     <?php if (isset($_SESSION['user_id']) && 
-                              ($_SESSION['user_id'] == $article->getAuthorId() || $currentUser->isAdmin())): ?>
+                        ($_SESSION['user_id'] == $article->getAuthorId() || $currentUser->isAdmin())): ?>
                     <div class="article-actions">
                         <a href="<?= BASE_URL ?>article/edit/<?= $article->getId() ?>">
                             <button class="btn-edit">Modificar</button>
@@ -96,7 +104,7 @@ require_once BASE_PATH . '/app/view/header-view.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-            <p class="no-articles">No tienes artículos publicados</p>
+            <p class="no-articles">No hay articulos</p>
         <?php endif; ?>
 
     </div>

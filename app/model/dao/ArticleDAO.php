@@ -194,4 +194,37 @@ class ArticleDAO {
         }
         return $results;
     }
+
+    public static function cercar($keyword, $limit = 10, $offset = 0) {
+        $pdo = DBConnection::getConnection();
+
+        $keyword = "%$keyword%";
+        $sql = "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
+                FROM articles a
+                LEFT JOIN usuaris u ON a.autor_id = u.id
+                WHERE a.titol LIKE :keyword OR a.cos LIKE :keyword
+                ORDER BY a.titol
+                LIMIT :limit OFFSET :offset";
+        
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':keyword', $keyword);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $results = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $results[] = new Article(
+                $row['id'],
+                $row['titol'],
+                $row['cos'],
+                $row['imatge_url'],
+                $row['autor_id'],
+                $row['autor_nom'],
+                $row['data_creacio']
+            );
+        }
+        
+        return $results;
+    }
 }

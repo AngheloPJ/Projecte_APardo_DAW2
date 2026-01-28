@@ -131,4 +131,58 @@ class MainController {
         $viewMine = true;
         require BASE_PATH . '/app/view/main-view.php';
     }
+
+    /* Buscar artículos */
+    public function searchArticles() {
+        
+        if (!isset($_GET['keyword']) || trim($_GET['keyword']) === '') {
+            header("Location: " . BASE_URL);
+            exit;
+        }
+
+        $keyword = trim($_GET['keyword']);
+        $currenView = "Resultados de: \"$keyword\"";
+
+        // PAGINACIÓN
+        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
+        $maxPerPage = 20;
+        $perPage = max(1, min($perPage, $maxPerPage));
+
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+
+        // ORDEN
+        $allowedColumns = ['data_creacio', 'titol'];
+        $allowedDir = ['ASC', 'DESC'];
+        $orderBy = 'data_creacio';
+        $direction = 'ASC';
+
+        if (isset($_GET['orderBy'])) {
+            $lastUnderscore = strrpos($_GET['orderBy'], '_');
+            if ($lastUnderscore !== false) {
+                $tmpColumn = substr($_GET['orderBy'], 0, $lastUnderscore);
+                $tmpDir = substr($_GET['orderBy'], $lastUnderscore + 1);
+                if (in_array($tmpColumn, $allowedColumns)) $orderBy = $tmpColumn;
+                if (in_array($tmpDir, $allowedDir)) $direction = $tmpDir;
+            }
+        }
+
+        $articles = ArticleDAO::cercar($keyword, $perPage, ($page - 1) * $perPage);
+        $totalResults = count($articles);
+        $totalPages = max(ceil($totalResults / $perPage), 1);
+
+        // Validar página
+        if ($page < 1 || $page > $totalPages) {
+            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
+            header("Location: $uri?keyword=" . urlencode($keyword) . "&p=1&total=$perPage");
+            exit;
+        }
+
+        // Opciones para el <select>
+        $options = [];
+        for ($i = 1; $i <= min($totalResults, 20); $i++) $options[] = $i;
+
+        $pageOptions = range(1, $totalPages);
+
+        require BASE_PATH . '/app/view/main-view.php';
+    }
 }

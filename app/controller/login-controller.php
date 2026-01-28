@@ -29,19 +29,20 @@ class LoginController {
         $password  = $_POST['contrasenya'] ?? '';
         $remember  = isset($_POST['recordar']);
 
-        $user = UserDAO::getByEmailOrName($userInput);
-        $attempts = $_SESSION['login_attempts'][$userInput]['contador'] ?? 0;
-        $captcha = $attempts >= 3;
+        $attempts          = $_SESSION['login_attempts'][$userInput]['contador'] ?? 0;
+        $captchaRequired   = $attempts >= 3;
 
-        if ($captcha) {
-            // Respuesta captcha
-            $token = $_POST['g-recaptcha-response'] ?? '';
-            if (empty($token) || !$this->verifyCaptcha()) {
-                $errors = "";
-            }
+        $user = UserDAO::getByEmailOrName($userInput);
+
+        if ($captchaRequired && empty($_POST['g-recaptcha-response'])) {
+            $error = "El captcha es obligatori.";
+            require BASE_PATH . '/app/view/login-view.php';
+            return;
         }
 
         if ($user && password_verify($password, $user->getPassword())) {
+            unset($_SESSION['login_attempts'][$userInput]);
+
             // Iniciar sesión
             $this->session->login($user);
 
@@ -56,6 +57,9 @@ class LoginController {
             header('Location: ' . BASE_URL . ($role === 'admin' ? 'home' : 'my-articles'));
             exit;
         }
+
+        $_SESSION['login_attempts'][$userInput]['contador'] = $attempts + 1;
+        $captchaRequired = $_SESSION['login_attempts'][$userInput]['contador'] >= 3;
 
         $error = "Usuario/Email o contraseña incorrectos.";
         require BASE_PATH . '/app/view/login-view.php';

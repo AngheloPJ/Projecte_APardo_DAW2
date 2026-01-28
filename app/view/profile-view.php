@@ -21,10 +21,12 @@ $actionUrl = $isProfile
 
 <main>
     <div class="contenidor">
-        <h2><?= $formTitle ?></h2>
+        <div class="article-head">
+            <a id="btn-volver" href="<?= BASE_URL ?>home"><span>🠠</span></a>
+            <h2 class="titol"><?= $formTitle ?></h2>
+        </div>
 
-        <form action="<?= $actionUrl ?>" method="post" enctype="multipart/form-data">
-            
+        <form action="<?= $actionUrl ?>" method="post" enctype="multipart/form-data">            
             <div class="form-group">
                 <label for="avatar">Avatar:</label>
                 <input type="file" id="avatar" name="avatar" accept=".webp, .jpg, .png, .jpeg">
@@ -50,6 +52,13 @@ $actionUrl = $isProfile
                 <input type="password" id="pass-nueva" name="pass-nueva" placeholder="***************">
                 <label for="pass-nueva"><?= $isProfile ? 'Contraseña nueva' : 'Confirmar contraseña' ?></label>
             </div>
+            
+            <div class="form-group">
+                <input type="password" id="confirm-nueva" name="confirm-nueva" placeholder="***************">
+                <label for="pass-nueva"><?= $isProfile ? 'Confirmar contraseña' : 'Confirmar contraseña' ?></label>
+            </div>
+
+            <!-- Missing; Confirmar contraseña check -->
 
             <?php if(!$isProfile): ?>
                 <div class="form-group">

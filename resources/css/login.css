@@ -1,3 +1,5 @@
+@import url('./main.css');
+
 /* 
    CSS DEL LOGIN.HTML Y REGISTER.HTML
 */
@@ -175,6 +177,12 @@ footer {
     gap: 10px;
 }
 
+.g-recaptcha {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .recordar {
     color: var(--color-text-base);
 }
@@ -189,7 +197,8 @@ footer {
 
 /* Botón login */
 
-.btn-login {
+.btn-login,
+.btn-register {
     position: relative;
     overflow: hidden;
     background-color: var(--color-boton-secondary);
@@ -203,7 +212,8 @@ footer {
     width: 100%;
 }
 
-.btn-login::after {
+.btn-login::after,
+.btn-register::after {
     content: "";
     position: absolute;
     top: -50px;
@@ -217,7 +227,8 @@ footer {
     z-index: 0;
 }
 
-.btn-login:hover::after {
+.btn-login:hover::after,
+.btn-register:hover::after {
     left: 120%;
 }
 
