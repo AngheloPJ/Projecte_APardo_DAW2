@@ -15,11 +15,18 @@ $actionUrl = $isProfile
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $formTitle ?> | APardo</title>
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/profile.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
 </head>
 <body>
 
 <main>
+    <div class="missatges">
+        <?php if (!empty($successMsg)): ?>
+            <p class="success"><?= htmlspecialchars($successMsg) ?></p>
+        <?php endif; ?>
+    </div>
+
     <div class="contenidor">
         <div class="article-head">
             <a id="btn-volver" href="<?= BASE_URL ?>home"><span>🠠</span></a>
@@ -42,7 +49,6 @@ $actionUrl = $isProfile
                 <label for="email">Correo</label>
             </div>
 
-            <!-- Contraseña: siempre editable, tanto perfil propio como admin -->
             <div class="form-group">
                 <input type="password" id="pass" name="pass" placeholder="***************">
                 <label for="pass"><?= $isProfile ? 'Contraseña actual' : 'Nueva contraseña' ?></label>
@@ -63,20 +69,16 @@ $actionUrl = $isProfile
             <?php if(!$isProfile): ?>
                 <div class="form-group">
                     <label for="rol">Rol:</label>
+
                     <select id="rol" name="rol">
                         <option value="user" <?= $user->getRol() === 'user' ? 'selected' : '' ?>>Usuario</option>
                         <option value="admin" <?= $user->getRol() === 'admin' ? 'selected' : '' ?>>Administrador</option>
-                        <!-- añadir más roles si es necesario -->
                     </select>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($errorMsg)): ?>
                 <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
-            <?php endif; ?>
-
-            <?php if (!empty($successMsg)): ?>
-                <p class="success"><?= htmlspecialchars($successMsg) ?></p>
             <?php endif; ?>
 
             <button type="submit">Actualizar</button>

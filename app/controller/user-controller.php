@@ -65,10 +65,19 @@ class UserController {
         $email       = trim($_POST['email'] ?? '');
         $currentPass = $_POST['pass'] ?? '';
         $newPass     = $_POST['pass-nueva'] ?? '';
+        $confirmPass = $_POST['confirm-nueva'] ?? '';
 
         // Verificar contraseña actual
         if (!empty($currentPass) && !password_verify($currentPass, $user->getPassword())) {
             $errorMsg = 'Contraseña actual incorrecta.';
+            $isProfile = true;
+            require BASE_PATH . '/app/view/profile-view.php';
+            return;
+        }
+
+        // Comparar contraseñas
+        if (!empty($newPass) && $newPass !== $confirmPass) {
+            $errorMsg = 'Las contraseñas no coinciden.';
             $isProfile = true;
             require BASE_PATH . '/app/view/profile-view.php';
             return;
@@ -92,10 +101,8 @@ class UserController {
 
         UserDAO::updateAll($user);
 
-        $successMsg = 'Perfil actualizado correctamente.';
-        if ($changedPass) {
-            $successMsg .= ' ¡Contraseña actualizada!';
-        }
+        if ($changedPass) return $successMsg .= ' ¡Contraseña actualizada!';
+        else $successMsg = 'Perfil actualizado correctamente.';
 
         $isProfile = true;
         require BASE_PATH . '/app/view/profile-view.php';

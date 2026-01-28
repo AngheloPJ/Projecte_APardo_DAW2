@@ -1,0 +1,12 @@
+main {
+    margin-top: 20px;
+}
+
+.missatges {
+    display: flex;
+    justify-content: center;
+}
+
+.success {
+    min-width: 700px;
+}
