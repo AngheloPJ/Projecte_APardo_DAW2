@@ -12,7 +12,7 @@ footer {
     background-color: var(--color-secondary);
     margin-top: 50px;
     flex-shrink: 0;
-    /* Evitar que se haga pequeño */
+    flex: 1;
 }
 
 footer p {

@@ -53,7 +53,7 @@ if ($error) $errors[] = $error;
 
             <p class="registro-texto">
                 ¿Ya tienes una cuenta? 
-                <a href="<?= BASE_URL ?>register" class="link-registro">
+                <a href="<?= BASE_URL ?>login" class="link-registro">
                     ¡Inicia sesión!
                 </a>
             </p>
