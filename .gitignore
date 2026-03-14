@@ -1,26 +1,36 @@
-# 🧱 Carpeta de dependències o llibreries externes
+# Dependencias externas
 /vendor/
 
-# 🧠 Fitxers de sistema de l'IDE / OS
+# Ficheros del IDE o del S.O
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
 
-# 🧪 Fitxers temporals o de prova
+# Ficheros temporales o de prueba
 *.tmp
 *.bak
 *.swp
 
-# 🚫 Fitxers generats per PHP
+# Ficheros generador por PHP
 *.log
 *.cache
 *.session
 
-# 🪄 Arxius del servidor local
+# Archivos en local
 .env
-composer.lock
+.env.local
 
-# 🧰 Altres arxius que no cal pujar
+# Ignorar imágenes subidas por usuarios
+/public/assets/img/articles/
+/public/assets/img/avatars/
+/public/uploads/avatars/
+
+# Mantener la estructura
+!/public/assets/img/articles/.gitkeep
+!/public/assets/img/avatars/.gitkeep
+!/public/uploads/avatars/.gitkeep
+
+# Archivos de Node
 node_modules/
 npm-debug.log

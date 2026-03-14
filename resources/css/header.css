@@ -52,6 +52,36 @@
     transform: 5s;
 }
 
+/* Avatar en header */
+.header-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    background-color: #fff;
+    flex-shrink: 0;
+}
+
+/* Botón de menú de usuario */
+.user-menu-btn {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    padding: 0.4em 0.8em !important;
+}
+
+.header-username {
+    max-width: none;
+    white-space: nowrap;
+    overflow: visible;
+}
+
+.dropdown-arrow {
+    margin-left: 4px;
+    font-size: 0.8em;
+}
+
 /* Dropdown */
 .dropdown {
     position: relative;
@@ -59,6 +89,7 @@
 }
 
 .dropbtn {
+    display: inline-flex;
     padding: 0.5em 0.8em;
     font-size: 0.95em;
     font-weight: bold;
@@ -73,6 +104,8 @@
     align-items: center;
     gap: 6px;
     min-height: 40px;
+    min-width: auto;
+    width: auto;
 }
 
 .crear-article {
@@ -96,12 +129,28 @@
     right: 0;
     background-color: var(--color-secondary);
     width: max-content;
-    min-width: 160px;
-    max-width: 250px;
+    min-width: 150px;
+    max-width: 300px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border-radius: 8px;
     overflow: hidden;
     z-index: 10;
+    white-space: nowrap;
+}
+
+.dropdown-content-avatar {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: var(--color-secondary);
+    width: max-content;
+    min-width: 150px;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+    white-space: nowrap;
 }
 
 .dropdown-content a {
@@ -152,6 +201,15 @@ a:focus {
         font-size: 0.9em;
         padding: 0.4em 0.8em;
     }
+
+    .header-avatar {
+        width: 30px;
+        height: 30px;
+    }
+
+    .header-username {
+        max-width: 130px;
+    }
 }
 
 /* Tablets pequeñas (481px - 768px) */
@@ -176,6 +234,16 @@ a:focus {
         padding: 0.4em 0.7em;
         font-size: 0.8em;
         min-height: 36px;
+    }
+
+    .header-avatar {
+        width: 28px;
+        height: 28px;
+    }
+
+    .header-username {
+        max-width: 100px;
+        font-size: 0.85em;
     }
 
     .dropdown-content {
@@ -211,6 +279,16 @@ a:focus {
         font-size: 0.7em;
         min-height: 32px;
         gap: 4px;
+    }
+
+    .header-avatar {
+        width: 26px;
+        height: 26px;
+    }
+
+    .header-username {
+        display: none;
+        /* Ocultar texto en móviles */
     }
 
     .dropbtn .icon {
@@ -267,6 +345,21 @@ a:focus {
         justify-content: center;
     }
 
+    .header-avatar {
+        width: 24px;
+        height: 24px;
+    }
+
+    .header-username {
+        display: none;
+        /* Ocultar texto */
+    }
+
+    .dropdown-arrow {
+        display: none;
+        /* Ocultar flecha */
+    }
+
     .dropbtn .icon {
         width: 14px;
         height: 14px;
@@ -307,6 +400,11 @@ a:focus {
         padding: 0.25em 0.4em;
         font-size: 0.6em;
         min-height: 28px;
+    }
+
+    .header-avatar {
+        width: 22px;
+        height: 22px;
     }
 
     .dropdown-content a {

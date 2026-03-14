@@ -5,210 +5,298 @@ require_once BASE_PATH . '/app/model/entity/User.php';
 
 class UserDAO {
 
-    /*
-       FUNCIONES CRUD [USUARIOS]
+    /* 
+    ··························
+    ·         CREATE         ·
+    ··························
     */
 
-    // CREATE (Crear)
-    public static function create($avatar_url, $nom, $email, $passHash, $rol = 'user') {
+    public static function create(
+        string $username,
+        string $displayName,
+        string $email,
+        string $passwordHash,
+        Role $role = Role::USER,
+        ?string $avatarUrl = null
+    ): User {
+
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("INSERT INTO usuaris (avatar_url, nom, email, contrasenya, rol) 
-                               VALUES (:avatar_url , :nom, :email, :pass, :rol)");
-        $stmt->bindValue(':avatar_url', $avatar_url, PDO::PARAM_STR);
-        $stmt->bindValue(':nom', $nom, PDO::PARAM_STR);
-        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmt->bindValue(':pass', $passHash, PDO::PARAM_STR);
-        $stmt->bindValue(':rol', $rol, PDO::PARAM_STR);
+
+        $sql = "
+            INSERT INTO users (
+                uuid, avatar_url, username, displayname,
+                email, password, role
+            ) VALUES (
+                UUID(), :avatar, :username, :displayname,
+                :email, :password, :role
+            )
+        ";
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->bindValue(':avatar', $avatarUrl);
+        $stmt->bindValue(':username', $username);
+        $stmt->bindValue(':displayname', $displayName);
+        $stmt->bindValue(':email', $email);
+        $stmt->bindValue(':password', $passwordHash);
+        $stmt->bindValue(':role', $role->value, PDO::PARAM_INT);
+
         $stmt->execute();
 
-        $id = $pdo->lastInsertId();
-        return self::getById($id);
+        return self::getById((int)$pdo->lastInsertId());
     }
 
-    // READ (Leer) - Por ID [ADMIN]
-    public static function getById($id) {
+    /* 
+    ··························
+    ·          READ          ·
+    ··························
+    */
+
+    public static function getById(int $id): ?User {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM usuaris WHERE id = :id");
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        return new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
+        return $row ? self::mapRowToUser($row) : null;
     }
 
-    // READ (Leer) - Por ID [Usuarios]
-    public static function getById2(int $id) {
+    public static function getByUsername(string $username): ?User {
         $pdo = DBConnection::getConnection();
-        // $stmt = $pdo->prepare("SELECT avatar_url, nom, email WHERE id = :id");
-        $stmt = $pdo->prepare("SELECT id, nom, email FROM usuaris WHERE id = :id");
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
+        $stmt->execute([':username' => $username]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        // return new User($row['id'], $row['avatar_url'], $row['nom'], $row['email']);
-        return new User($row['id'], $row['nom'], $row['email']);
+        return $row ? self::mapRowToUser($row) : null;
     }
 
-    // READ (Leer) - Por username
-    public static function getByName($name) {
+    public static function getByEmail(string $email): ?User {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM usuaris WHERE nom = :nom");
-        $stmt->bindValue(':nom', $name, PDO::PARAM_STR);
-        $stmt->execute();
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
+        $stmt->execute([':email' => $email]);
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        return new User($row['id'], $row['avatar_url'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
+        return $row ? self::mapRowToUser($row) : null;
     }
 
-    // READ (Leer) - Por email
-    public static function getByEmail($email) {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM usuaris WHERE email = :email");
-        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
-        $stmt->execute();
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        return new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
-    }
-
-    // READ (Leer) - Por email o username
-    public static function getByEmailOrName($value) {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM usuaris WHERE email = :value OR nom = :value");
-        $stmt->bindValue(':value', $value, PDO::PARAM_STR);
-        $stmt->execute();
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        return new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
-    }
-
-    // UPDATE (Modificar) - TODO
-    public static function updateAll(User $user) {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("UPDATE usuaris
-                                SET nom = :nom, email = :email, rol = :rol, contrasenya = :pass
-                               WHERE id = :id");
-        return $stmt->execute([
-            ':nom'  => $user->getUsername(),
-            ':email'=> $user->getEmail(),
-            ':rol'  => $user->getRol(),
-            ':pass' => $user->getPassword(),
-            ':id'   => $user->getId()
-        ]);
-    }
-
-    // UPDATE (Modificar) - Solo credenciales
-    public static function updateCredentials(User $user) {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("UPDATE usuaris
-                                SET nom = :nom, email = :email, contrasenya = :pass
-                               WHERE id = :id");
-        return $stmt->execute([
-            ':nom'  => $user->getUsername(),
-            ':email'=> $user->getEmail(),
-            ':pass' => $user->getPassword(),
-            ':id'   => $user->getId()
-        ]);
-    }
-
-    // DELETE (Eliminar)
-    public static function delete(User $user) {
+    public static function getByEmailOrUsername(string $value): ?User {
         $pdo = DBConnection::getConnection();
 
-        $stmt = $pdo->prepare("DELETE FROM usuaris WHERE id = :id");
-        $stmt->bindValue(':id', $user->getId(), PDO::PARAM_INT);
-
-        return $stmt->execute();
-    }
-
-    /*
-       METODOS AUXILIARES REMEMBER ME + EXPIRACIÓN + CONTRASEÑAS 
-       + LISTA DE USUARIOS + CONTAR USUARIOS
-    */
-
-    // Guardar token remember_me + expiración
-    public static function saveRememberToken($user, $token, $expires) {
-        $pdo = DBConnection::getConnection();
         $stmt = $pdo->prepare("
-            UPDATE usuaris 
-            SET remember_token = :token,
-                remember_token_expires = :expires
-            WHERE id = :uid
+            SELECT * FROM users
+            WHERE email = :value OR username = :value
+            LIMIT 1
         ");
-        $stmt->bindValue(':token', $token, PDO::PARAM_STR);
-        $stmt->bindValue(':expires', $expires, PDO::PARAM_STR);
-        $stmt->bindValue(':uid', $user->getId(), PDO::PARAM_INT);
-        $stmt->execute();
+
+        $stmt->execute([':value' => $value]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? self::mapRowToUser($row) : null;
     }
 
-    // Eliminar token
-    public static function clearRememberToken($userId) {
-    if (!$userId) return false;
+    /* 
+    ··························
+    ·         UPDATE         ·
+    ··························
+    */
 
-    $pdo = DBConnection::getConnection();
-    $stmt = $pdo->prepare("
-        UPDATE usuaris
-        SET remember_token = NULL,
-            remember_token_expires = NULL
-        WHERE id = :uid
-    ");
-    $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
-
-    return $stmt->execute();
-
-    }
-
-    // Obtener contraseña
-    public static function getUserPassword($username) {
+    public static function update(User $user): bool {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT contrasenya FROM usuaris WHERE nom = :user");
-        $stmt->bindValue(':user', $username, PDO::PARAM_STR);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $stmt = $pdo->prepare("
+            UPDATE users SET
+                username = :username,
+                displayname = :displayname,
+                email = :email,
+                role = :role,
+                avatar_url = :avatar
+            WHERE id = :id
+        ");
+
+        return $stmt->execute([
+            ':username'    => $user->getUsername(),
+            ':displayname' => $user->getDisplayName(),
+            ':email'       => $user->getEmail(),
+            ':role'        => $user->getRole()->value,
+            ':avatar'      => $user->getAvatarUrl(),
+            ':id'          => $user->getId(),
+        ]);
     }
 
-    // Obtenir usuari per token (cookie remember_me) verificando expiración
-    public static function getUserIdByToken($token) {
+    public static function updatePassword(int $userId, string $passwordHash): bool {
         $pdo = DBConnection::getConnection();
-        $hashedToken = hash('sha256', $token);
-        $stmt = $pdo->prepare("SELECT id 
-                                  FROM usuaris 
-                               WHERE remember_token = :token
-                               AND remember_token_expires > NOW()");
-    $stmt->bindValue(':token', $hashedToken, PDO::PARAM_STR);
-    $stmt->execute();
-        return $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET password = :password
+            WHERE id = :id
+        ");
+
+        return $stmt->execute([
+            ':password' => $passwordHash,
+            ':id' => $userId
+        ]);
     }
 
-    // Contar usuarios
-    public static function countAll() {
+    /* 
+    ··························
+    ·         DELETE         ·
+    ··························
+    */
+
+    public static function delete(int $id): bool {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->query("SELECT COUNT(*) FROM usuaris");
-        return (int) $stmt->fetchColumn();
+
+        $stmt = $pdo->prepare("DELETE FROM users WHERE id = :id");
+        return $stmt->execute([':id' => $id]);
     }
 
-    // Listar los usuarios con paginación
-    public static function listAll($limit, $offset) {
+    public static function clearRememberToken(int $userId): bool {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT * FROM usuaris ORDER BY id ASC LIMIT :limit OFFSET :offset");
+
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET remember_token = NULL,
+                remember_token_expires = NULL
+            WHERE id = :id
+        ");
+
+        return $stmt->execute([':id' => $userId]);
+    }
+
+    /* 
+    ··························
+    ·          COUNT         ·
+    ··························
+    */
+
+    public static function countAll(): int {
+        $pdo = DBConnection::getConnection();
+        return (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+    }
+
+    /* 
+    ··························
+    ·          LIST          ·
+    ··························
+    */
+
+    public static function listAll(int $limit, int $offset): array {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare("
+            SELECT * FROM users
+            ORDER BY id ASC
+            LIMIT :limit OFFSET :offset
+        ");
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-        
-        $results = [];
+
+        $users = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $results[] = new User($row['id'], $row['nom'], $row['email'], $row['rol'], $row['contrasenya']);
+            $users[] = self::mapRowToUser($row);
         }
-        return $results;
+
+        return $users;
+    }
+
+    /* 
+    ··························
+    ·         TOKEN          ·
+    ··························
+    */
+    
+    /**
+     * Guardar token "remember me" para un usuario
+     * 
+     * @param User $user Usuario al que guardar el token
+     * @param string $token Token hasheado (SHA256)
+     * @param string $expires Fecha de expiración (formato: Y-m-d H:i:s)
+     * @return bool True si se guardó correctamente
+     */
+    public static function saveRememberToken(
+        User $user,
+        string $token,
+        string $expires
+    ): bool {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET remember_token = :token,
+                remember_token_expires = :expires
+            WHERE id = :id
+        ");
+
+        return $stmt->execute([
+            ':token' => $token,
+            ':expires' => $expires,
+            ':id' => $user->getId()
+        ]);
+    }
+
+    /**
+     * Obtener ID de usuario mediante token "remember me"
+     * Verifica que el token exista y no haya expirado
+     * 
+     * @param string $token Token sin hashear (tal como viene de la cookie)
+     * @return int|null ID del usuario o null si no es válido
+     */
+    public static function getUserIdByToken(string $token): ?int {
+        $pdo = DBConnection::getConnection();
+        
+        // Hashear el token recibido para comparar con el de la BD
+        $hashedToken = hash('sha256', $token);
+
+        $stmt = $pdo->prepare("
+            SELECT id 
+            FROM users 
+            WHERE remember_token = :token 
+            AND remember_token_expires > NOW()
+            LIMIT 1
+        ");
+
+        $stmt->execute([':token' => $hashedToken]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ? (int)$result['id'] : null;
+    }
+
+    public static function getUserByToken(string $token): ?User {
+        $userId = self::getUserIdByToken($token);
+        return $userId ? self::getById($userId) : null;
+    }
+
+    /* 
+    ··························
+    ·         MAPPER         ·
+    ··························
+    */
+
+    /**
+    * Mapea una fila de la BD a un objeto User.
+    */
+    private static function mapRowToUser(array $row): User {
+        return new User(
+            (int)$row['id'],
+            $row['uuid'],
+            $row['username'],
+            $row['displayname'],
+            $row['email'],
+            $row['password'],
+            $row['avatar_url'],
+            Role::from((int)$row['role']),
+            $row['remember_token'],
+            $row['remember_token_expires'],
+            $row['password_reset_token'],
+            $row['password_reset_expires'],
+            $row['created_at']
+        );
     }
 }

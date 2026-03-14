@@ -1,230 +1,259 @@
 <?php
 
-require_once BASE_PATH . '/config/env.php';
 require_once BASE_PATH . '/app/model/db-connection.php';
 require_once BASE_PATH . '/app/model/entity/Article.php';
 
 class ArticleDAO {
-    /*
-       FUNCIONES CRUD [ARTICULOS]
+
+    /* 
+    ··························
+    ·         CREATE         ·
+    ··························
     */
-
-    // CREATE (Crear)
-    public static function create($titol, $cos, $imatge_url, User $user) {
+    public static function create(
+        string $slug,
+        string $title,
+        string $content,
+        ?string $imageUrl,
+        ?int $authorId
+    ): Article {
         $pdo = DBConnection::getConnection();
-        $sql = "INSERT INTO articles (titol, cos, imatge_url, autor_id) 
-                VALUES (:titol, :cos, :img, :autor)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':titol', $titol);
-        $stmt->bindValue(':cos', $cos);
-        $stmt->bindValue(':img', $imatge_url);
-        $stmt->bindValue(':autor', $user->getId(), PDO::PARAM_INT);
-        $stmt->execute();
-
-        $id = $pdo->lastInsertId();
-        return self::getById($id);
-    }
-
-    // READ (Leer)
-    public static function getById($id) {
-        $pdo = DBConnection::getConnection();
-
-        $sql = "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-                FROM articles a
-                LEFT JOIN usuaris u ON a.autor_id = u.id
-                WHERE a.id = :id
-                LIMIT 1";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) return null;
-
-        return new Article(
-            $row['id'],
-            $row['titol'],
-            $row['cos'],
-            $row['imatge_url'],
-            $row['autor_id'],
-            $row['autor_nom'],
-            $row['data_creacio']
-        );
-    }
-
-    // UPDATE (Modificar tot)
-    public static function updateAdmin(Article $article, User $user) {
-        if (!$user->isAdmin()) {
-            throw new Exception("No tienes permisos para modificar este artículo.");
-        }
-
-        $pdo = DBConnection::getConnection();
-        $sql = "UPDATE articles 
-                SET titol = :titol, cos = :cos, imatge_url = :img, autor_id = :autor
-                WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-
-        return $stmt->execute([
-            ':titol' => $article->getTitol(),
-            ':cos'   => $article->getCos(),
-            ':img'   => $article->getImatgeUrl(),
-            ':autor' => $article->getAuthorId(),
-            ':id'    => $article->getId()
-        ]);
-    }
-
-    // UPDATE (Modificar)
-    public static function update(Article $article) {
-        $pdo = DBConnection::getConnection();
-        $sql = "UPDATE articles SET titol = :titol, cos = :cos, imatge_url = :img WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        return $stmt->execute([
-            ':titol' => $article->getTitol(),
-            ':cos' => $article->getCos(),
-            ':img' => $article->getImatgeUrl(),
-            ':id' => $article->getId()
-        ]);
-    }
-
-    // DELETE (Borrar)
-        public static function deleteById(int $id) {
-        $pdo = DBConnection::getConnection();
-        $sql = "DELETE FROM articles WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
-    }
-
-    /*
-       FUNCIONES AUXILIARES CONTAR Y FILTRAR
-    */
-
-    // Comptar tots els articles
-    public static function countAll() {
-        $pdo = DBConnection::getConnection();
-        $stmt = $pdo->query("SELECT COUNT(*) FROM articles");
-        return (int) $stmt->fetchColumn();
-    }
-
-    // Llistar tots els articles amb un limit i offset per la pàginació
-    public static function listAll($limit, $offset, $orderBy = 'data_creacio', $direction = 'ASC') {
-        $pdo = DBConnection::getConnection();
-
-        $allowedColumns = ['data_creacio', 'titol'];
-        if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
-
-        $direction = strtoupper($direction);
-        if (!in_array($direction, ['ASC','DESC'])) {
-            $direction = 'DESC';
-        }
 
         $stmt = $pdo->prepare(
-            "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-            FROM articles a
-            LEFT JOIN usuaris u ON a.autor_id = u.id
-            ORDER BY $orderBy $direction
-            LIMIT :limit OFFSET :offset"
+            "INSERT INTO articles (slug, title, content, image_url, author_id)
+             VALUES (:slug, :title, :content, :image, :author)"
         );
 
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute([
+            ':slug'   => $slug,
+            ':title'  => $title,
+            ':content'=> $content,
+            ':image'  => $imageUrl,
+            ':author' => $authorId
+        ]);
 
-        $results = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $results[] = new Article(
-                $row['id'],
-                $row['titol'],
-                $row['cos'],
-                $row['imatge_url'],
-                $row['autor_id'],
-                $row['autor_nom'],
-                $row['data_creacio']
-            );
-        }
-
-        return $results;
+        return self::getById((int)$pdo->lastInsertId());
     }
 
-    // Comptar articles publicats de l'usuari
-    public static function countByUser($userId) {
+    /* 
+    ··························
+    ·          READ          ·
+    ··························
+    */
+    public static function getById(int $id): ?Article {
         $pdo = DBConnection::getConnection();
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM articles WHERE autor_id = :uid");
+
+        $stmt = $pdo->prepare(
+            "SELECT *
+             FROM articles
+             WHERE id = :id
+             LIMIT 1"
+        );
+
+        $stmt->execute([':id' => $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? Article::fromArray($row) : null;
+    }
+
+    public static function getBySlug(string $slug): ?Article {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare(
+            "SELECT *
+             FROM articles
+             WHERE slug = :slug
+             LIMIT 1"
+        );
+
+        $stmt->execute([':slug' => $slug]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? Article::fromArray($row) : null;
+    }
+
+    /* 
+    ··························
+    ·         UPDATE         ·
+    ··························
+    */
+    public static function update(Article $article): bool {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare(
+            "UPDATE articles
+             SET title = :title,
+                 content = :content,
+                 image_url = :image
+             WHERE id = :id"
+        );
+
+        return $stmt->execute([
+            ':title'   => $article->getTitle(),
+            ':content' => $article->getContent(),
+            ':image'   => $article->getImageUrl(),
+            ':id'      => $article->getId()
+        ]);
+    }
+
+    /* 
+    ··························
+    ·         DELETE         ·
+    ··························
+    */
+    public static function delete(int $id): bool {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare(
+            "DELETE FROM articles WHERE id = :id"
+        );
+
+        return $stmt->execute([':id' => $id]);
+    }
+
+    /* 
+    ··························
+    ·          COUNT         ·
+    ··························
+    */
+    public static function countAll(): int {
+        $pdo = DBConnection::getConnection();
+
+        return (int)$pdo
+            ->query("SELECT COUNT(*) FROM articles")
+            ->fetchColumn();
+    }
+
+    public static function countByUser(int $userId): int {
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM articles WHERE author_id = :uid"
+        );
+
         $stmt->execute([':uid' => $userId]);
-        return (int) $stmt->fetchColumn();
+        return (int)$stmt->fetchColumn();
     }
 
-    // Llistar tots els articles de l'usuari en concret amb un limit i offset per la pàginació
-    public static function listByUser($userId, $limit, $offset, $orderBy = 'data_creacio', $direction = 'ASC') {
+    /**
+     * Cuenta los artículos que coinciden con la búsqueda en título o contenido
+     */
+    public static function countSearch(string $keyword): int {
         $pdo = DBConnection::getConnection();
 
-        $allowedColumns = ['data_creacio', 'titol'];
-        if (!in_array($orderBy, $allowedColumns)) $orderBy = 'data_creacio';
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) 
+            FROM articles 
+            WHERE title LIKE :kw OR content LIKE :kw"
+        );
 
-        $direction = strtoupper($direction);
-        if (!in_array($direction, ['ASC','DESC'])) {
-            $direction = 'DESC';
-        }
+        $stmt->execute([':kw' => "%$keyword%"]);
 
-        $sql = "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-                FROM articles a
-                LEFT JOIN usuaris u ON a.autor_id = u.id
-                WHERE a.autor_id = :uid
-                ORDER BY $orderBy $direction
-                LIMIT :limit OFFSET :offset";
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-
-        $results = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $results[] = new Article(
-                $row['id'],
-                $row['titol'],
-                $row['cos'],
-                $row['imatge_url'],
-                $row['autor_id'],
-                $row['autor_nom'],
-                $row['data_creacio']
-            );
-        }
-        return $results;
+        return (int)$stmt->fetchColumn();
     }
 
-    public static function cercar($keyword, $limit = 10, $offset = 0) {
+    /* 
+    ··························
+    ·          LIST          ·
+    ··························
+    */
+
+    /**
+     * Función para listar todos los articulos
+     */
+    public static function list(
+        int $limit,
+        int $offset,
+        ?int $userId = null,
+        string $orderBy = 'published_at',
+        string $direction = 'DESC'
+    ): array {
         $pdo = DBConnection::getConnection();
 
-        $keyword = "%$keyword%";
-        $sql = "SELECT a.id, a.titol, a.cos, a.imatge_url, a.autor_id, u.nom AS autor_nom, a.data_creacio
-                FROM articles a
-                LEFT JOIN usuaris u ON a.autor_id = u.id
-                WHERE a.titol LIKE :keyword OR a.cos LIKE :keyword
-                ORDER BY a.titol
-                LIMIT :limit OFFSET :offset";
-        
+        // Validar ordenamiento
+        $allowedColumns = ['published_at', 'title'];
+        $orderBy = in_array($orderBy, $allowedColumns) ? $orderBy : 'published_at';
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+        $sql = "
+            SELECT 
+                a.*,
+                u.username AS author_name,
+                u.displayname AS author_displayname
+            FROM articles a
+            LEFT JOIN users u ON a.author_id = u.id
+        ";
+
+        if ($userId !== null) {
+            $sql .= " WHERE a.author_id = :uid";
+        }
+
+        $sql .= " ORDER BY a.$orderBy $direction LIMIT :limit OFFSET :offset";
+
         $stmt = $pdo->prepare($sql);
-        $stmt->bindValue(':keyword', $keyword);
+
+        if ($userId !== null) {
+            $stmt->bindValue(':uid', $userId, PDO::PARAM_INT);
+        }
+
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
         $stmt->execute();
 
-        $results = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-            $results[] = new Article(
-                $row['id'],
-                $row['titol'],
-                $row['cos'],
-                $row['imatge_url'],
-                $row['autor_id'],
-                $row['autor_nom'],
-                $row['data_creacio']
-            );
-        }
-        
-        return $results;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /** 
+     * Función para filtrar los artículos del usuario
+     */
+    public static function listByAuthor(
+        int $limit,
+        int $offset,
+        ?int $userId = null,
+        string $orderBy = 'published_at',
+        string $direction = 'DESC'
+    ): array {
+        return self::list($limit, $offset, $userId, $orderBy, $direction);
+    }
+
+    /**
+     * Devuelve artículos que coinciden con la búsqueda, paginados y ordenados
+     */
+    public static function search(
+        string $keyword,
+        int $limit,
+        int $offset,
+        string $orderBy = 'published_at',
+        string $direction = 'DESC'
+    ): array {
+        $pdo = DBConnection::getConnection();
+
+        // Validar columnas de orden
+        $allowedColumns = ['published_at', 'title'];
+        $orderBy = in_array($orderBy, $allowedColumns) ? $orderBy : 'published_at';
+        $direction = strtoupper($direction) === 'ASC' ? 'ASC' : 'DESC';
+
+        $sql = "
+            SELECT 
+                a.*,
+                u.username AS author_name,
+                u.displayname AS author_displayname
+            FROM articles a
+            LEFT JOIN users u ON a.author_id = u.id
+            WHERE a.title LIKE :kw OR a.content LIKE :kw
+            ORDER BY a.$orderBy $direction
+            LIMIT :limit OFFSET :offset
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindValue(':kw', "%$keyword%");
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

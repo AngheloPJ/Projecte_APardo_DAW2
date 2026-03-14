@@ -30,6 +30,11 @@ class Route {
             $uri = trim($uri, '/');
         }
 
+        error_log("=== ROUTE DISPATCH ===");
+        error_log("REQUEST_URI: " . $_SERVER['REQUEST_URI']);
+        error_log("Processed URI: " . $uri);
+        error_log("BasePath: " . $basePath);
+
         $method = $_SERVER['REQUEST_METHOD'];
 
         foreach (self::$routes[$method] as $route => $action) {
@@ -56,6 +61,7 @@ class Route {
             }
         }
 
+        error_log("ROUTE NOT FOUND for URI: " . $uri);
         http_response_code(404);
         require BASE_PATH . '/public/errors/404-view.php';
         exit;

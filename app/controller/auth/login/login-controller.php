@@ -1,0 +1,258 @@
+<?php
+
+require_once BASE_PATH . '/app/model/dao/UserDAO.php';
+require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
+require_once BASE_PATH . '/app/controller/auth/cookie/cookie-controller.php';
+
+class LoginController {
+
+    private SessionController $session;
+
+    public function __construct() {
+        $this->session = new SessionController();
+        $this->session->start();
+    }
+
+    /**
+     * Procesar login
+     */
+    public function login(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->showLoginForm();
+            return;
+        }
+
+        $userInput = trim($_POST['user'] ?? '');
+        $password  = $_POST['contrasenya'] ?? '';
+        $remember  = isset($_POST['recordar']);
+
+        // Sistema de intentos fallidos
+        $attempts = $_SESSION['login_attempts'][$userInput]['contador'] ?? 0;
+        $captchaRequired = $attempts >= 3;
+
+        // Validar captcha si es necesario
+        if ($captchaRequired && empty($_POST['g-recaptcha-response'])) {
+            $error = "El captcha es obligatorio.";
+            require BASE_PATH . '/app/view/auth/login-view.php';
+            return;
+        }
+
+        // Buscar usuario por email o username
+        $user = UserDAO::getByEmailOrUsername($userInput);
+
+        // Verificar credenciales
+        if ($user && password_verify($password, $user->getPassword())) {
+            // Login exitoso - limpiar intentos
+            unset($_SESSION['login_attempts'][$userInput]);
+
+            // Iniciar sesión
+            $this->session->login($user);
+
+            // Recordar usuario si se pidió
+            if ($remember) {
+                $cookie = new CookieController();
+                $cookie->setRememberMe($user);
+            }
+
+            // Redirigir según rol
+            $this->redirectAfterLogin($user);
+            return;
+        }
+
+        // Login fallido - incrementar intentos
+        $_SESSION['login_attempts'][$userInput]['contador'] = $attempts + 1;
+        $captchaRequired = $_SESSION['login_attempts'][$userInput]['contador'] >= 3;
+
+        $error = "Usuario/Email o contraseña incorrectos.";
+        require BASE_PATH . '/app/view/auth/login-view.php';
+    }
+
+    /**
+     * Procesar registro
+     */
+    public function register(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->showRegisterForm();
+            return;
+        }
+
+        $username         = trim($_POST['username'] ?? '');
+        $displayName      = trim($_POST['displayname'] ?? '');
+        $email            = trim($_POST['email'] ?? '');
+        $password         = $_POST['password'] ?? '';
+        $confirmPassword  = $_POST['confirmPass'] ?? '';
+
+        // Usar username si no hay displayname
+        if (empty($displayName)) $displayName = $username;
+        $username = strtolower($username); // Transformar username a toLowerCase()
+
+        // Validación de campos vacíos
+        if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
+            $error = "Todos los campos son obligatorios.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Validar email
+        if (!$this->isValidEmail($email)) {
+            $error = "El email no es válido.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Validar contraseñas coinciden
+        if ($password !== $confirmPassword) {
+            $error = "Las contraseñas no coinciden.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Validar fortaleza de contraseña
+        $passwordErrors = $this->validatePassword($password);
+        if (!empty($passwordErrors)) {
+            $error = implode("\n", $passwordErrors);
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Verificar si el username ya existe
+        if (UserDAO::getByUsername($username)) {
+            $error = "Ese nombre de usuario ya existe.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Verificar si el email ya existe
+        if (UserDAO::getByEmail($email)) {
+            $error = "Ese correo electrónico ya está registrado.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
+        // Crear usuario
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $avatarUrl = 'public/uploads/avatars/default.webp';
+        
+        try {
+            // ORDEN CORRECTO: username, displayName, email, passwordHash, role, avatarUrl
+            $newUser = UserDAO::create(
+                $username,
+                $displayName,
+                $email,
+                $hashedPassword,
+                Role::USER,
+                $avatarUrl
+            );
+
+            // Login automático después del registro
+            $this->session->login($newUser);
+
+            // Redirigir a mis artículos
+            header('Location: ' . BASE_URL . 'my-articles');
+            exit;
+
+        } catch (Exception $e) {
+            error_log("Error al crear usuario: " . $e->getMessage());
+            $error = "Error al crear el usuario. Por favor, inténtalo de nuevo.";
+            require BASE_PATH . '/app/view/auth/register-view.php';
+        }
+    }
+
+
+    /**
+     * Mostrar formulario de login
+     */
+    public function showLoginForm(): void {
+        $this->redirectIfLoggedIn();
+        
+        $error = null;
+        $captchaRequired = false;
+        
+        // Mensaje de éxito si viene del reseteo
+        $success = null;
+        if (isset($_SESSION['reset_success'])) {
+            $success = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
+            unset($_SESSION['reset_success']);
+        }
+        
+        require BASE_PATH . '/app/view/auth/login-view.php';
+    }
+
+    /**
+     * Mostrar formulario de registro
+     */
+    public function showRegisterForm(): void {
+        $this->redirectIfLoggedIn();
+        
+        $error = null;
+        
+        require BASE_PATH . '/app/view/auth/register-view.php';
+    }
+
+
+    /* 
+    ··························
+    ·   MÉTODOS PRIVADOS     ·
+    ··························
+    */
+
+    /**
+     * Validar formato de email
+     */
+    private function isValidEmail(string $email): bool {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+    }
+
+    /**
+     * Validar fortaleza de contraseña
+     * 
+     * @return array Array de errores (vacío si la contraseña es válida)
+     */
+    private function validatePassword(string $password): array {
+        $errors = [];
+
+        if (strlen($password) < 8) {
+            $errors[] = "La contraseña debe contener al menos 8 caracteres.";
+        }
+        
+        if (!preg_match('/[A-Z]/', $password)) {
+            $errors[] = "La contraseña debe contener al menos una letra mayúscula.";
+        }
+        
+        if (!preg_match('/[a-z]/', $password)) {
+            $errors[] = "La contraseña debe contener al menos una letra minúscula.";
+        }
+        
+        if (!preg_match('/\d/', $password)) {
+            $errors[] = "La contraseña debe contener al menos un número.";
+        }
+        
+        if (!preg_match('/[\W_]/', $password)) {
+            $errors[] = "La contraseña debe contener al menos un símbolo (como !@#$%).";
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Redirigir si el usuario ya está logeado
+     */
+    private function redirectIfLoggedIn(): void {
+        if ($this->session->isLogged()) {
+            header('Location: ' . BASE_URL . 'home');
+            exit;
+        }
+    }
+
+    /**
+     * Redirigir después del login según el rol del usuario
+     */
+    private function redirectAfterLogin(User $user): void {
+        $redirectUrl = $user->getRole() === Role::ADMIN 
+            ? BASE_URL . 'home' 
+            : BASE_URL . 'my-articles';
+            
+        header('Location: ' . $redirectUrl);
+        exit;
+    }
+}
