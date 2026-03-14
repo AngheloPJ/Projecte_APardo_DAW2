@@ -12,6 +12,7 @@
 .article-head {
     display: flex;
     align-items: center;
+    text-transform: uppercase;
     gap: 10px;
     margin-bottom: 25px;
 }

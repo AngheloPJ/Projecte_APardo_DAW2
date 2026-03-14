@@ -336,6 +336,10 @@ main .barra-reserca #btnCercar {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
+.highLight {
+    color: var(--color-accent);
+}
+
 /* Tablets grandes (769px - 1024px) */
 @media (max-width: 1024px) and (min-width: 769px) {
     main {
@@ -469,6 +473,10 @@ main .barra-reserca #btnCercar {
         height: 170px;
     }
 
+    .vista-actual {
+        font-size: 0.80rem;
+    }
+
     .titulo {
         font-size: 0.95rem;
     }
@@ -551,6 +559,10 @@ main .barra-reserca #btnCercar {
 
     .imatge {
         height: 180px;
+    }
+
+    .vista-actual {
+        font-size: 0.70rem;
     }
 
     .titulo {

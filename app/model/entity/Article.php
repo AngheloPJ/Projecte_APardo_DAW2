@@ -1,38 +1,97 @@
 <?php
 
 class Article {
-    private $id;
-    private $titol;
-    private $cos;
-    private $imatge_url;
-    private $author_id;
-    private $author_nom;
-    private $data_creacio;
+    
+    private int $id;
+    private ?int $authorId;
+    private string $slug;
+    private string $title;
+    private string $content;
+    private ?string $imageUrl;
+    private ?string $publishedAt;
+    private ?string $authorName;
 
-    public function __construct($id, $titol, $cos, $imatge_url, $author_id, $author_nom, $data_creacio) {
+    public function __construct(
+        int $id,
+        ?int $authorId,
+        string $slug,
+        string $title,
+        string $content,
+        ?string $imageUrl,
+        ?string $publishedAt,
+        ?string $authorName = null
+    ) {
         $this->id = $id;
-        $this->titol = $titol;
-        $this->cos = $cos;
-        $this->imatge_url = $imatge_url;
-        $this->author_id = $author_id;
-        $this->author_nom = $author_nom;
-        $this->data_creacio = $data_creacio;
+        $this->authorId = $authorId;
+        $this->slug = $slug;
+        $this->title = $title;
+        $this->content = $content;
+        $this->imageUrl = $imageUrl;
+        $this->publishedAt = $publishedAt;
+        $this->authorName = $authorName;
     }
 
     // Getters
-    public function getId() { return $this->id; }
-    public function getTitol() { return $this->titol; }
-    public function getCos() { return $this->cos; }
-    public function getImatgeUrl() { return $this->imatge_url; }
-    public function getAuthorId() { return $this->author_id; }
-    public function getAuthorNom() { return $this->author_nom; }
-    public function getDataCreacio() { return $this->data_creacio; }
+    public function getId(): int {
+        return $this->id;
+    }
+
+    public function getAuthorId(): ?int {
+        return $this->authorId;
+    }
+
+    public function getSlug(): string {
+        return $this->slug;
+    }
+
+    public function getTitle(): string {
+        return $this->title;
+    }
+
+    public function getContent(): string {
+        return $this->content;
+    }
+
+    public function getImageUrl(): ?string {
+        return $this->imageUrl;
+    }
+
+    public function getPublishedAt(): ?string {
+        return $this->publishedAt;
+    }
+
+    public function getAuthorName(): ?string {
+        return $this->authorName;
+    }
 
     // Setters
-    public function setTitol($titol) { $this->titol = $titol; }
-    public function setCos($cos) { $this->cos = $cos; }
-    public function setImatgeUrl($img) { $this->imatge_url = $img; }
-    public function setAuthor($author_nom) { $this->author = $author_nom; }
-}
+    public function setTitle(string $title): void {
+        $this->title = $title;
+    }
 
-?>
+    public function setContent(string $content): void {
+        $this->content = $content;
+    }
+
+    public function setImageUrl(?string $imageUrl): void {
+        $this->imageUrl = $imageUrl;
+    }
+
+    public function setAuthorName(?string $authorName): void {
+        $this->authorName = $authorName;
+    }
+
+    // Factory method
+    public static function fromArray(array $data): self {
+        return new self(
+            (int)$data['id'],
+            isset($data['author_id']) ? (int)$data['author_id'] : null,
+            $data['slug'],
+            $data['title'],
+            $data['content'],
+            $data['image_url'] ?? null,
+            $data['published_at'] ?? null,
+            $data['author_name'] ?? null
+        );
+    }
+}

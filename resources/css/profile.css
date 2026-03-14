@@ -1,0 +1,89 @@
+main {
+    margin-top: 20px;
+}
+
+.missatges {
+    display: flex;
+    justify-content: center;
+}
+
+.success {
+    min-width: 700px;
+}
+
+/* Estilos [Avatar]*/
+
+.avatar-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar-preview img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--color-boton-primary);
+}
+
+.avatar-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.avatar-upload label {
+    font-weight: 500;
+    color: #fff;
+}
+
+.file-input-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.file-input-wrapper input[type=file] {
+    position: absolute;
+    left: -9999px;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: var(--color-boton-secondary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    color: white;
+    font-weight: bold;
+}
+
+.file-input-label:hover {
+    background-color: var(--color-btn-secondary-hover);
+}
+
+.file-name {
+    font-size: 16px;
+    color: #666;
+}
+
+.remove-avatar {
+    width: 100%;
+    padding: 8px 16px;
+    background-color: var(--color-boton-third);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.remove-avatar:hover {
+    background-color: var(--color-btn-third-hover);
+}

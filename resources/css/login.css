@@ -60,6 +60,8 @@ footer {
 }
 
 .login-head #btn-volver {
+    display: flex;
+    justify-content: center;
     width: 40px;
     border: none;
     border-radius: 6px;
@@ -387,6 +389,35 @@ footer {
     }
 }
 
+/* OAuth - Choose Username */
+.oauth-provider-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: var(--spacing-md);
+}
+
+.oauth-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 3px solid var(--color-boton-primary);
+    object-fit: cover;
+}
+
+.oauth-welcome {
+    color: var(--color-text-base);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.oauth-subtitle {
+    color: var(--color-text-muted, #aaa);
+    font-size: 0.85rem;
+    margin: 0;
+    line-height: 1.4;
+}
 /* Móviles pequeños (hasta 376px) */
 @media (max-width: 376px) {
     main {

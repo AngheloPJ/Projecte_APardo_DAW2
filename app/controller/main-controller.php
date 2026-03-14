@@ -1,13 +1,12 @@
 <?php
 
 require_once BASE_PATH . '/app/model/dao/ArticleDAO.php';
-require_once BASE_PATH . '/app/model/dao/UserDAO.php';
-require_once BASE_PATH . '/app/controller/session-controller.php';
+require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
 
 class MainController {
 
-    private $session;
-    private $user;
+    private SessionController $session;
+    private ?User $user;
 
     public function __construct() {
         $this->session = new SessionController();
@@ -15,174 +14,177 @@ class MainController {
         $this->user = $this->session->getUser();
     }
 
-    /* Mostrar todos los artículos */
     public function showAllArticles() {
+        $total = ArticleDAO::countAll();
 
-        // Vista actual
-        $currenView = 'Todos los artículos';
+        $currenView = 'Todos los artículos (<span class="highLight">' . $total . '</span>)';
+        $currentUser = $this->user;
 
-        // PAGINACIÓN
+        // Paginación
         $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
-        $maxPerPage = 20;
-        $perPage = max(1, min($perPage, $maxPerPage));
+        $perPage = max(1, min($perPage, 20));
 
         $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        $offset = ($page - 1) * $perPage;
 
-        // ORDEN
-        $allowedColumns = ['data_creacio', 'titol'];
-        $allowedDir = ['ASC', 'DESC'];
-        $orderBy = 'data_creacio';
-        $direction = 'ASC';
+        // Ordenamiento
+        $orderByParam = $_GET['orderBy'] ?? 'published_DESC';
+        $parts = explode('_', $orderByParam);
+        
+        $orderBy = $parts[0] ?? 'published';
+        $direction = $parts[1] ?? 'DESC';
 
-        if (isset($_GET['orderBy'])) {
-            $lastUnderscore = strrpos($_GET['orderBy'], '_');
-            if ($lastUnderscore !== false) {
-                $tmpColumn = substr($_GET['orderBy'], 0, $lastUnderscore);
-                $tmpDir = substr($_GET['orderBy'], $lastUnderscore + 1);
-                if (in_array($tmpColumn, $allowedColumns)) $orderBy = $tmpColumn;
-                if (in_array($tmpDir, $allowedDir)) $direction = $tmpDir;
-            }
+        // Validar valores
+        $allowedOrderBy = ['published', 'title'];
+        if (!in_array($orderBy, $allowedOrderBy)) {
+            $orderBy = 'title';
         }
 
-        $total = ArticleDAO::countAll();
+        $direction = strtoupper($direction);
+        if (!in_array($direction, ['ASC', 'DESC'])) {
+            $direction = 'DESC';
+        }
+
         $totalPages = max(ceil($total / $perPage), 1);
 
-        // Validar página
         if ($page < 1 || $page > $totalPages) {
-            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
-            header("Location: $uri?p=1&total=$perPage&orderBy={$orderBy}_{$direction}");
+            header("Location: ?p=1&total=$perPage");
             exit;
         }
 
-        $articles = ArticleDAO::listAll($perPage, ($page - 1) * $perPage, $orderBy, $direction);
+        $articlesData = ArticleDAO::list($perPage, $offset, null, $orderBy, $direction);
 
-        // Opciones para el <select>
-        $options = [];
-        for ($i = 1; $i <= min($total, 20); $i++) $options[] = $i;
+        $articles = [];
+        foreach ($articlesData as $row) {
+            $article = Article::fromArray($row);
+            $article->setAuthorName($row['author_name'] ?? 'Desconocido');
+            $articles[] = $article;
+        }
 
+        $options = range(1, min($total, 20));
         $pageOptions = range(1, $totalPages);
 
-        require BASE_PATH . '/app/view/main-view.php';
+        require BASE_PATH . '/app/view/main/main-view.php';
     }
 
-    /* Mostrar solo los artículos del usuario logueado */
+    /**
+     * Función para buscar articulos del usuario (Mis articulos)
+     */
     public function showUserArticles() {
-
         if (!$this->user) {
             header("Location: " . BASE_URL . "login");
             exit;
         }
 
-        // Vista actual
-        $currenView = 'Mis artículos';
-
+        $currentUser = $this->user;
         $userId = $this->user->getId();
 
-        // PAGINACIÓN
-        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
-        $maxPerPage = 20;
-        $perPage = max(1, min($perPage, $maxPerPage));
-
         $total = ArticleDAO::countByUser($userId);
+        $currenView = 'Mis artículos (<span class="highLight">' . $total . '</span>)';
+
+        // Paginación
+        $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
+        $perPage = max(1, min($perPage, 20));
+
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        $offset = ($page - 1) * $perPage;
+
+        // Ordenamiento
+        $orderByParam = $_GET['orderBy'] ?? 'published';
+        $parts = explode('_', $orderByParam);
+        
+        $orderBy = $parts[0] ?? 'published';
+        $direction = $parts[1] ?? 'DESC';
+
+        // Validar valores
+        $allowedOrderBy = ['published', 'title'];
+        if (!in_array($orderBy, $allowedOrderBy)) {
+            $orderBy = 'published';
+        }
+
+        $direction = strtoupper($direction);
+        if (!in_array($direction, ['ASC', 'DESC'])) {
+            $direction = 'DESC';
+        }
+
         $totalPages = max(ceil($total / $perPage), 1);
 
-        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
-
         if ($page < 1 || $page > $totalPages) {
-            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
-            header("Location: $uri?p=1&total=$perPage");
+            header("Location: ?p=1&total=$perPage");
             exit;
         }
 
-        // ORDEN
-        $allowedColumns = ['data_creacio', 'titol'];
-        $allowedDir = ['ASC', 'DESC'];
-        $orderBy = 'data_creacio';
-        $direction = 'ASC';
+        $articlesData = ArticleDAO::listByAuthor($perPage, $offset, $userId, $orderBy, $direction);
 
-        if (isset($_GET['orderBy'])) {
-            $lastUnderscore = strrpos($_GET['orderBy'], '_');
-            if ($lastUnderscore !== false) {
-                $tmpColumn = substr($_GET['orderBy'], 0, $lastUnderscore);
-                $tmpDir = substr($_GET['orderBy'], $lastUnderscore + 1);
-                if (in_array($tmpColumn, $allowedColumns)) $orderBy = $tmpColumn;
-                if (in_array($tmpDir, $allowedDir)) $direction = $tmpDir;
-            }
+        $articles = [];
+        foreach ($articlesData as $row) {
+            $article = Article::fromArray($row);
+            $article->setAuthorName($row['author_name'] ?? 'Desconocido');
+            $articles[] = $article;
         }
 
-        $articles = ArticleDAO::listByUser($userId, $perPage, ($page - 1) * $perPage, $orderBy, $direction);
-
-        $startIndex = ($page - 1) * $perPage;
         $pageOptions = range(1, $totalPages);
-
-        // Opciones de página para el <select>
-        $options = [];
-        if ($total <= 5) {
-            for ($i = 1; $i <= $total; $i++) $options[] = $i;
-        } elseif ($total <= 15) {
-            $step = ($total <= 9) ? 2 : 3;
-            for ($i = $step; $i <= $total; $i += $step) $options[] = $i;
-            if (!in_array($total, $options)) $options[] = $total;
-        } else {
-            for ($i = 5; $i < $total; $i += 5) $options[] = $i;
-            if (!in_array($total, $options)) $options[] = $total;
-        }
+        $options = range(1, min($total, 20));
 
         $viewMine = true;
-        require BASE_PATH . '/app/view/main-view.php';
+        require BASE_PATH . '/app/view/main/main-view.php';
     }
 
-    /* Buscar artículos */
+    /**
+     * Función para buscar articulos
+     */
     public function searchArticles() {
+        $keyword = trim($_GET['keyword'] ?? '');
+        $total = ArticleDAO::countSearch($keyword);
+
+        if ($keyword == '') return header("Location: " . BASE_URL . "home");;
+
+        if ($total <= 1) $currenView = 'Resultados de <span class="highLight">' . $keyword . '</span>';
+        else $currenView = 'Resultados de <span class="highLight">' . $keyword . '</span> (<span class="highLight">' . $total . '</span>)';
+
         
-        if (!isset($_GET['keyword']) || trim($_GET['keyword']) === '') {
-            header("Location: " . BASE_URL);
-            exit;
-        }
+        $currentUser = $this->user;
 
-        $keyword = trim($_GET['keyword']);
-        $currenView = "Resultados de: \"$keyword\"";
-
-        // PAGINACIÓN
         $perPage = isset($_GET['total']) ? (int)$_GET['total'] : 2;
-        $maxPerPage = 20;
-        $perPage = max(1, min($perPage, $maxPerPage));
-
+        $perPage = max(1, min($perPage, 20));
         $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        $offset = ($page - 1) * $perPage;
 
-        // ORDEN
-        $allowedColumns = ['data_creacio', 'titol'];
-        $allowedDir = ['ASC', 'DESC'];
-        $orderBy = 'data_creacio';
-        $direction = 'ASC';
+        $orderByParam = $_GET['orderBy'] ?? 'published_DESC';
+        $lastUnderscore = strrpos($orderByParam, '_');
 
-        if (isset($_GET['orderBy'])) {
-            $lastUnderscore = strrpos($_GET['orderBy'], '_');
-            if ($lastUnderscore !== false) {
-                $tmpColumn = substr($_GET['orderBy'], 0, $lastUnderscore);
-                $tmpDir = substr($_GET['orderBy'], $lastUnderscore + 1);
-                if (in_array($tmpColumn, $allowedColumns)) $orderBy = $tmpColumn;
-                if (in_array($tmpDir, $allowedDir)) $direction = $tmpDir;
-            }
+        if ($lastUnderscore !== false) {
+            $orderBy = substr($orderByParam, 0, $lastUnderscore);
+            $direction = strtoupper(substr($orderByParam, $lastUnderscore + 1));
+        } else {
+            $orderBy = 'published';
+            $direction = 'DESC';
         }
 
-        $articles = ArticleDAO::cercar($keyword, $perPage, ($page - 1) * $perPage);
-        $totalResults = count($articles);
-        $totalPages = max(ceil($totalResults / $perPage), 1);
+        $allowedOrderBy = ['published', 'title'];
+        if (!in_array($orderBy, $allowedOrderBy)) $orderBy = 'published';
+        if (!in_array($direction, ['ASC','DESC'])) $direction = 'DESC';
 
-        // Validar página
+        $totalPages = max(ceil($total / $perPage), 1);
+
         if ($page < 1 || $page > $totalPages) {
-            $uri = explode('?', $_SERVER['REQUEST_URI'])[0];
-            header("Location: $uri?keyword=" . urlencode($keyword) . "&p=1&total=$perPage");
+            header("Location: ?p=1&total=$perPage&keyword=".urlencode($keyword));
             exit;
         }
 
-        // Opciones para el <select>
-        $options = [];
-        for ($i = 1; $i <= min($totalResults, 20); $i++) $options[] = $i;
+        $articlesData = ArticleDAO::search($keyword, $perPage, $offset, $orderBy, $direction);
+
+        $articles = [];
+        foreach ($articlesData as $row) {
+            $article = Article::fromArray($row);
+            $article->setAuthorName($row['author_name'] ?? 'Desconocido');
+            $articles[] = $article;
+        }
 
         $pageOptions = range(1, $totalPages);
+        $options = range(1, min($total, 20));
 
-        require BASE_PATH . '/app/view/main-view.php';
+        require BASE_PATH . '/app/view/main/main-view.php';
     }
+
 }
