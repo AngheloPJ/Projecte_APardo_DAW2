@@ -30,12 +30,14 @@ Route::get('admin/users', 'UserController@listUsers');
 Route::get('admin/users/edit/{id}', 'UserController@showEditUser');
 Route::post('admin/users/edit-submit/{id}', 'UserController@editUserSubmit');
 Route::get('admin/users/delete/{id}', 'UserController@delete');
+Route::post('admin/users/delete/{id}', 'UserController@delete');
 
 // Artículos
 Route::get('article/create', 'ArticleController@showForm');  
 Route::post('article/create-submit', 'ArticleController@create');
 
 Route::get('article/edit/{id}', 'ArticleController@showForm');  
+Route::post('article/edit/{id}', 'ArticleController@edit');  
 Route::post('article/edit-submit', 'ArticleController@edit');
 
 Route::get('article/delete/{id}', 'ArticleController@delete');
