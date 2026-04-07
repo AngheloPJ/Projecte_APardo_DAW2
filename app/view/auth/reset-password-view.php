@@ -1,11 +1,10 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
 
-$token = $_GET['token'] ?? $_POST['token'] ?? '';
-$errors = [];
+/* Que quiero - como quiero [ft. Ikerby - Persistencia 2025] */
+$token = $token ?? '';
+$error = $error ?? null;
 
-if (!isset($error)) $error = null;
-if ($error) $errors[] = $error;
 ?>
 
 <!DOCTYPE html>
@@ -26,13 +25,7 @@ if ($error) $errors[] = $error;
             <h2 class="titulo">RESTABLECER CONTRASEÑA</h2>
         </div>
 
-        <?php if ($errors): ?>
-            <div class="errores">
-                <?php foreach ($errors as $err): ?>
-                    <p><?= htmlspecialchars($err) ?></p>
-                <?php endforeach; ?>
-            </div>
-        <?php elseif ($token): ?>
+        <?php if ($token): ?>
             <form class="formulario-login" method="post" action="<?= BASE_URL ?>reset-password-submit">
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
@@ -59,6 +52,12 @@ if ($error) $errors[] = $error;
                 </div>
 
                 <button type="submit" class="btn-login">RESTABLECER CONTRASEÑA</button>
+
+                <?php if ($error): ?>
+                    <div class="errores">
+                        <p><?= nl2br(htmlspecialchars($error)) ?></p>
+                    </div>
+                <?php endif; ?>
             </form>
         <?php endif; ?>
 

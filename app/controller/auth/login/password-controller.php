@@ -62,12 +62,12 @@ class PasswordResetController {
      * Mostrar formulario de cambiar contraseña
      */
     public function showResetPasswordForm(): void {
-        $token = $_GET['token'] ?? null;
+        $token = $_GET['token'] ?? '';
         $error = null;
 
         if (!$token || !PasswordResetDAO::getByToken($token)) {
             $error = "El enlace no es válido o ha caducado. Por favor, solicita uno nuevo.";
-            $token = null;
+            $token = '';
         }
 
         require BASE_VIEW . '/auth/reset-password-view.php';
@@ -92,6 +92,7 @@ class PasswordResetController {
 
         if (!$resetData) {
             $error = "Token inválido o caducado.";
+            $token = '';
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
@@ -105,7 +106,7 @@ class PasswordResetController {
 
         $errors = $this->validatePassword($password);
         if (!empty($errors)) {
-            $error = "La contraseña debe incluir:<br>" . implode('<br>', $errors);
+            $error = "La contraseña debe incluir:\n" . implode("\n", $errors);
             require BASE_PATH . '/app/view/auth/reset-password-view.php';
             return;
         }
