@@ -63,6 +63,9 @@ class MainController {
 
         $options = range(1, min($total, 20));
         $pageOptions = range(1, $totalPages);
+        
+        $isLogged = $currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
 
         require BASE_PATH . '/app/view/main/main-view.php';
     }
@@ -125,6 +128,8 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $isLogged = $currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
 
         $viewMine = true;
         require BASE_PATH . '/app/view/main/main-view.php';
@@ -183,8 +188,25 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $isLogged = $currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
 
         require BASE_PATH . '/app/view/main/main-view.php';
+    }
+
+    private function resolveAvatarUrl(?User $user): string {
+        if (!$user) {
+            return BASE_URL . 'public/uploads/avatars/default.webp';
+        }
+
+        $rawAvatar = $user->getAvatarUrl();
+        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
+            return $rawAvatar;
+        }
+
+        return $rawAvatar
+            ? BASE_URL . $rawAvatar
+            : BASE_URL . 'public/uploads/avatars/default.webp';
     }
 
 }

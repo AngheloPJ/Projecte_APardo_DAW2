@@ -45,6 +45,10 @@ class ArticleController {
             }
         }
 
+        $currentUser = $this->currentUser;
+        $isLogged = $this->currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+
         require BASE_PATH . '/app/view/article/article-view.php';
     }
 
@@ -61,6 +65,10 @@ class ArticleController {
             $this->showForm();
             return;
         }
+
+        $isLogged = $this->currentUser !== null;
+        $currentUser = $this->currentUser;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
 
         $title   = trim($_POST['titol'] ?? '');
         $content = trim($_POST['cos'] ?? '');
@@ -120,6 +128,10 @@ class ArticleController {
             $this->showForm($id);
             return;
         }
+
+        $isLogged = $this->currentUser !== null;
+        $currentUser = $this->currentUser;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
 
         $article = ArticleDAO::getById($id);
         
@@ -229,6 +241,17 @@ class ArticleController {
     private function canEditArticle(Article $article): bool {
         return $this->currentUser->getId() === $article->getAuthorId() 
             || $this->currentUser->isAdmin();
+    }
+
+    private function resolveAvatarUrl(?User $user): string {
+        if (!$user) return BASE_URL . 'public/uploads/avatars/default.webp';
+
+        $rawAvatar = $user->getAvatarUrl();
+        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
+            return $rawAvatar;
+        }
+
+        return $rawAvatar ? BASE_URL . $rawAvatar : BASE_URL . 'public/uploads/avatars/default.webp';
     }
 
     /**

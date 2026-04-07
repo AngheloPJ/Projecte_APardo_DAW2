@@ -1,3 +1,11 @@
+<?php
+    /* Que quiero - como quiero [ft. Ikerby] */
+
+    $isLogged = $isLogged ?? false;
+    $currentUser = $currentUser ?? null;
+    $avatarUrl = $avatarUrl ?? (BASE_URL . 'public/uploads/avatars/default.webp');
+?>
+
 <html lang="ca">
 <head>
     <meta charset="UTF-8">
@@ -16,21 +24,9 @@
         </div>
 
         <div class="header-right">
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <?php $currentUser = UserDAO::getById($_SESSION['user_id']); ?>
-                
+            <?php if ($isLogged && $currentUser): ?>
                 <div class="dropdown">
                     <button class="dropbtn user-menu-btn">
-                        <?php 
-                        $rawAvatar = $currentUser->getAvatarUrl();
-                        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
-                            $avatarUrl = $rawAvatar;
-                        } else {
-                            $avatarUrl = $rawAvatar 
-                                ? BASE_URL . $rawAvatar 
-                                : BASE_URL . 'public/uploads/avatars/default.webp';
-                        }
-                        ?>
                         <img src="<?= htmlspecialchars($avatarUrl) ?>" 
                             alt="Avatar de <?= htmlspecialchars($currentUser->getDisplayName()) ?>" 
                             class="header-avatar">

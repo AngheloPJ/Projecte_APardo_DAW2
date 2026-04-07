@@ -124,6 +124,10 @@ class UserController {
         $offset = ($page - 1) * $perPage;
         $users = UserDAO::listAll($perPage, $offset);
 
+        $currentUser = $this->currentUser;
+        $isLogged = $currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+
         require BASE_PATH . '/app/view/user/users-view.php';
     }
 
@@ -310,7 +314,21 @@ class UserController {
     }
 
     private function renderProfileView(User $user, bool $isProfile, ?string $errorMsg = null, ?string $successMsg = null): void {
+        $currentUser = $this->currentUser;
+        $isLogged = $currentUser !== null;
+        $avatarUrl = $this->resolveAvatarUrl($currentUser);
         require BASE_PATH . '/app/view/user/profile-view.php';
+    }
+
+    private function resolveAvatarUrl(?User $user): string {
+        if (!$user) return BASE_URL . 'public/uploads/avatars/default.webp';
+
+        $rawAvatar = $user->getAvatarUrl();
+        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
+            return $rawAvatar;
+        }
+
+        return $rawAvatar ? BASE_URL . $rawAvatar : BASE_URL . 'public/uploads/avatars/default.webp';
     }
 
     private function validatePassword(string $password): array {
