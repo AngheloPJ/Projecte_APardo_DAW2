@@ -55,10 +55,14 @@ class MainController {
         $articlesData = ArticleDAO::list($perPage, $offset, null, $orderBy, $direction);
 
         $articles = [];
+        $isAuthor = [];
+        
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+
+            $isAuthor[$article->getId()] = $currentUser && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
 
         $options = range(1, min($total, 20));
@@ -120,10 +124,14 @@ class MainController {
         $articlesData = ArticleDAO::listByAuthor($perPage, $offset, $userId, $orderBy, $direction);
 
         $articles = [];
+        $canManageByArticleId = [];
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+
+            $canManageByArticleId[$article->getId()] = $currentUser
+                && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
 
         $pageOptions = range(1, $totalPages);
@@ -180,10 +188,14 @@ class MainController {
         $articlesData = ArticleDAO::search($keyword, $perPage, $offset, $orderBy, $direction);
 
         $articles = [];
+        $canManageByArticleId = [];
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+
+            $canManageByArticleId[$article->getId()] = $currentUser
+                && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
 
         $pageOptions = range(1, $totalPages);

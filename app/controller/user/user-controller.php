@@ -111,6 +111,20 @@ class UserController {
     public function listUsers(): void {
         $this->validateAdminAccess();
 
+        /* Validación para la vista */
+
+        $successMsg = null;
+        $errorMsg = null;
+
+        $success = $_GET['success'] ?? null;
+        $error = $_GET['error'] ?? null;
+
+        if ($success === 'deleted') $successMsg = 'Usuario eliminado correctamente.';
+        if ($error === 'self_delete') $errorMsg = 'No puedes eliminarte a ti mismo.';
+        elseif ($error === 'delete') $errorMsg = 'Error al eliminar el usuario.';
+
+        // ---
+
         $page = isset($_GET['p']) ? max(1, (int)$_GET['p']) : 1;
         $perPage = 20;
         

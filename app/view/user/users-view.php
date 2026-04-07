@@ -1,26 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-$errors = [];
-if (!isset($error)) $error = null;
-if ($error) $errors[] = $error;
-
-$successMsg = null;
-$errorMsg = null;
-
-if (isset($_GET['success'])) {
-    if ($_GET['success'] === 'deleted') {
-        $successMsg = 'Usuario eliminado correctamente.';
-    }
-}
-
-if (isset($_GET['error'])) {
-    if ($_GET['error'] === 'self_delete') {
-        $errorMsg = 'No puedes eliminarte a ti mismo.';
-    } elseif ($_GET['error'] === 'delete') {
-        $errorMsg = 'Error al eliminar el usuario.';
-    }
-}
 ?>
 
 <html lang="ca">

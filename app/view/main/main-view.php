@@ -88,8 +88,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                     </div>
                     
                     <!-- Botones de acción en cada artículo -->
-                    <?php if (isset($_SESSION['user_id']) && 
-                        ($_SESSION['user_id'] == $article->getAuthorId() || $currentUser->isAdmin())): ?>
+                    <?php if (!empty($isAuthor[$article->getId()])): ?>
                     <div class="article-actions">
                         <a href="<?= BASE_URL ?>article/edit/<?= $article->getId() ?>">
                             <button class="btn-edit">Modificar</button>
