@@ -124,14 +124,14 @@ class MainController {
         $articlesData = ArticleDAO::listByAuthor($perPage, $offset, $userId, $orderBy, $direction);
 
         $articles = [];
-        $canManageByArticleId = [];
+        $isAuthor = [];
+
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
 
-            $canManageByArticleId[$article->getId()] = $currentUser
-                && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
+            $isAuthor[$article->getId()] = $currentUser && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
 
         $pageOptions = range(1, $totalPages);
