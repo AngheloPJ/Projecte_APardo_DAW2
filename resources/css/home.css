@@ -11,7 +11,6 @@ body {
 
 main {
     flex: 1 0 auto;
-    /* Permitir crecer y empujar abajo */
     margin: 20px auto;
     max-width: 1400px;
     width: 100%;
@@ -96,6 +95,7 @@ main .barra-reserca #btnCercar {
     margin-bottom: 20px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     overflow: hidden;
+    border: 1px solid #0000002d;
 }
 
 .article:hover {
@@ -337,7 +337,7 @@ main .barra-reserca #btnCercar {
 }
 
 .highLight {
-    color: var(--color-accent);
+    color: var(--color-boton-selected);
 }
 
 /* Tablets grandes (769px - 1024px) */

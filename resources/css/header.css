@@ -74,6 +74,7 @@
 .header-username {
     max-width: none;
     white-space: nowrap;
+    text-overflow: ellipsis;
     overflow: visible;
 }
 
@@ -136,6 +137,7 @@
     overflow: hidden;
     z-index: 10;
     white-space: nowrap;
+    border: 1px solid #0000002d;
 }
 
 .dropdown-content-avatar {

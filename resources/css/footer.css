@@ -13,6 +13,7 @@ footer {
     margin-top: 50px;
     flex-shrink: 0;
     flex: 1;
+    border-top: 1px solid #0000002d;
 }
 
 footer p {

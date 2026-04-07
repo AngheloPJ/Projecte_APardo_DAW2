@@ -161,7 +161,7 @@ class ArticleDAO {
     /**
      * Función para listar todos los articulos
      */
-    public static function list(
+    public static function list (
         int $limit,
         int $offset,
         ?int $userId = null,
@@ -207,7 +207,7 @@ class ArticleDAO {
     /** 
      * Función para filtrar los artículos del usuario
      */
-    public static function listByAuthor(
+    public static function listByAuthor (
         int $limit,
         int $offset,
         ?int $userId = null,
@@ -220,7 +220,7 @@ class ArticleDAO {
     /**
      * Devuelve artículos que coinciden con la búsqueda, paginados y ordenados
      */
-    public static function search(
+    public static function search (
         string $keyword,
         int $limit,
         int $offset,
