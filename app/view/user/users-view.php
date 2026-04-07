@@ -1,5 +1,6 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
+require_once BASE_PATH . '/app/utils/avatar-utils.php';
 ?>
 
 <html lang="ca">
@@ -52,16 +53,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                     <?php foreach ($users as $u): ?>
                     <tr>
                         <td>
-                            <?php 
-                                $rawAvatar = $u->getAvatarUrl();
-                                if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
-                                    $avatarUrl = $rawAvatar;
-                                } else {
-                                    $avatarUrl = $rawAvatar 
-                                        ? BASE_URL . $rawAvatar 
-                                        : BASE_URL . 'public/uploads/avatars/default.webp';
-                                }
-                            ?>   
+                            <?php $avatarUrl = buildAvatarURL($u->getAvatarUrl()); ?>
                             <img src="<?= htmlspecialchars($avatarUrl) ?>" 
                                 alt="Avatar de <?= htmlspecialchars($u->getDisplayName()) ?>" 
                                 class="user-avatar-small">

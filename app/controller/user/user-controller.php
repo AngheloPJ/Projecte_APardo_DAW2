@@ -3,6 +3,7 @@
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/model/entity/User.php';
 require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
+require_once BASE_PATH . '/app/utils/avatar-utils.php';
 
 class UserController {
 
@@ -140,7 +141,7 @@ class UserController {
 
         $currentUser = $this->currentUser;
         $isLogged = $currentUser !== null;
-        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         require BASE_PATH . '/app/view/user/users-view.php';
     }
@@ -330,25 +331,14 @@ class UserController {
     private function renderProfileView(User $user, bool $isProfile, ?string $errorMsg = null, ?string $successMsg = null): void {
         $currentUser = $this->currentUser;
         $isLogged = $currentUser !== null;
-        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         $formTitle = $isProfile ? 'Mi Perfil' : 'Perfil de ' . $user->getUsername();
         $actionUrl = $isProfile ? BASE_URL . 'profile/edit-submit' : BASE_URL . 'admin/users/edit-submit/' . $user->getId();
-        $currentAvatar = $this->resolveAvatarUrl($user);
+        $currentAvatar = buildAvatarURL($user->getAvatarUrl());
         $formTitleIcon = $currentAvatar;
 
         require BASE_PATH . '/app/view/user/profile-view.php';
-    }
-
-    private function resolveAvatarUrl(?User $user): string {
-        if (!$user) return BASE_URL . 'public/uploads/avatars/default.webp';
-
-        $rawAvatar = $user->getAvatarUrl();
-        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
-            return $rawAvatar;
-        }
-
-        return $rawAvatar ? BASE_URL . $rawAvatar : BASE_URL . 'public/uploads/avatars/default.webp';
     }
 
     private function validatePassword(string $password): array {

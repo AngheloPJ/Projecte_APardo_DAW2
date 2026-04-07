@@ -3,6 +3,7 @@
 require_once BASE_PATH . '/app/model/dao/ArticleDAO.php';
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
+require_once BASE_PATH . '/app/utils/avatar-utils.php';
 
 class ArticleController {
 
@@ -47,7 +48,7 @@ class ArticleController {
 
         $currentUser = $this->currentUser;
         $isLogged = $this->currentUser !== null;
-        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         require BASE_PATH . '/app/view/article/article-view.php';
     }
@@ -68,7 +69,7 @@ class ArticleController {
 
         $isLogged = $this->currentUser !== null;
         $currentUser = $this->currentUser;
-        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         $title   = trim($_POST['titol'] ?? '');
         $content = trim($_POST['cos'] ?? '');
@@ -131,7 +132,7 @@ class ArticleController {
 
         $isLogged = $this->currentUser !== null;
         $currentUser = $this->currentUser;
-        $avatarUrl = $this->resolveAvatarUrl($currentUser);
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         $article = ArticleDAO::getById($id);
         
@@ -241,17 +242,6 @@ class ArticleController {
     private function canEditArticle(Article $article): bool {
         return $this->currentUser->getId() === $article->getAuthorId() 
             || $this->currentUser->isAdmin();
-    }
-
-    private function resolveAvatarUrl(?User $user): string {
-        if (!$user) return BASE_URL . 'public/uploads/avatars/default.webp';
-
-        $rawAvatar = $user->getAvatarUrl();
-        if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
-            return $rawAvatar;
-        }
-
-        return $rawAvatar ? BASE_URL . $rawAvatar : BASE_URL . 'public/uploads/avatars/default.webp';
     }
 
     /**
