@@ -1,22 +1,14 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
 
- $isProfile = $isProfile ?? false;
- $formTitle = $isProfile ? 'Mi Perfil' : 'Perfil de ' . $user->getUsername();
- $formTitleIcon = $user->getAvatarUrl();
+// Que quiero - como quiero
+$isProfile = $isProfile ?? false;
+$formTitle = $formTitle ?? 'Mi Perfil';
 
- $actionUrl = $isProfile 
-    ? BASE_URL . 'profile/edit-submit' 
-    : BASE_URL . 'admin/users/edit-submit/' . $user->getId();
+$formTitleIcon = $formTitleIcon ?? (BASE_URL . 'public/uploads/avatars/default.webp');
+$currentAvatar = $currentAvatar ?? (BASE_URL . 'public/uploads/avatars/default.webp');
+$actionUrl = $actionUrl ?? (BASE_URL . 'profile/edit-submit');
 
- $rawAvatar = $user->getAvatarUrl();
- if ($rawAvatar && (str_starts_with($rawAvatar, 'http://') || str_starts_with($rawAvatar, 'https://'))) {
-     $currentAvatar = $rawAvatar;
- } else {
-     $currentAvatar = $rawAvatar 
-         ? BASE_URL . $rawAvatar 
-         : BASE_URL . 'public/uploads/avatars/default.webp';
- }
 ?>
 
 <html lang="ca">

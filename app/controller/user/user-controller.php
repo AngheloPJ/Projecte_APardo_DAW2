@@ -331,6 +331,12 @@ class UserController {
         $currentUser = $this->currentUser;
         $isLogged = $currentUser !== null;
         $avatarUrl = $this->resolveAvatarUrl($currentUser);
+
+        $formTitle = $isProfile ? 'Mi Perfil' : 'Perfil de ' . $user->getUsername();
+        $actionUrl = $isProfile ? BASE_URL . 'profile/edit-submit' : BASE_URL . 'admin/users/edit-submit/' . $user->getId();
+        $currentAvatar = $this->resolveAvatarUrl($user);
+        $formTitleIcon = $currentAvatar;
+
         require BASE_PATH . '/app/view/user/profile-view.php';
     }
 

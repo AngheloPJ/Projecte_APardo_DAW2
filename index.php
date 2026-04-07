@@ -7,11 +7,13 @@
 
 use config\Route;
 
-// Ruta base [env.php]
+// Config
 require __DIR__ . '/config/config.php';
 
 // Enrutador
 require_once __DIR__ . '/config/Route.php';
+
+// Rutas
 require_once __DIR__ . '/config/routes.php';
 
 // Controladores
@@ -25,14 +27,14 @@ require_once BASE_PATH . '/app/controller/user/user-controller.php';
 require_once BASE_PATH . '/app/controller/oauth/callback.php';
 
 // Instancias
-$main    = new MainController();
-$login   = new LoginController();
+$main     = new MainController();
+$login    = new LoginController();
 $password = new PasswordResetController();
-$session = new SessionController();
-$cookies = new CookieController();
-$article = new ArticleController();
-$user    = new UserController();
-$oauth   = new OAuthCallbackController();
+$session  = new SessionController();
+$cookies  = new CookieController();
+$article  = new ArticleController();
+$user     = new UserController();
+$oauth    = new OAuthCallbackController();
 
 // Iniciar sesión
 $session->start();
