@@ -1,13 +1,16 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
 
-$error = $_SESSION['error'] ?? null;
-unset($_SESSION['error']);
+// Que quiero - como quiero
 
-$suggestedUsername = $_SESSION['oauth_pending']['username'] ?? '';
-$provider = $_SESSION['oauth_pending']['provider'] ?? '';
-$avatar = $_SESSION['oauth_pending']['avatar'] ?? null;
-$displayName = $_SESSION['oauth_pending']['display_name'] ?? '';
+$error = $error ?? null;
+$suggestedUsername = $suggestedUsername ?? '';
+$provider = $provider ?? '';
+$avatar = $avatar ?? null;
+$displayName = $displayName ?? '';
+
+// --
+
 ?>
 <!DOCTYPE html>
 <html lang="cat">
@@ -34,7 +37,9 @@ $displayName = $_SESSION['oauth_pending']['display_name'] ?? '';
                 ¡Bienvenido desde <strong><?= htmlspecialchars(ucfirst($provider)) ?></strong>!
             </p>
             <p class="oauth-subtitle">
-                El nombre de usuario <strong>"<?= htmlspecialchars($suggestedUsername) ?>"</strong> ya está en uso. Elige otro para completar tu registro.
+                El nombre de usuario 
+                <strong>"<?= htmlspecialchars($suggestedUsername) ?>"</strong> 
+                ya está en uso. Elige otro para completar tu registro.
             </p>
         </div>
 
@@ -45,7 +50,7 @@ $displayName = $_SESSION['oauth_pending']['display_name'] ?? '';
                     id="username" 
                     name="username" 
                     placeholder="@TuNuevoUsuario" 
-                    value="<?= htmlspecialchars($_POST['username'] ?? $suggestedUsername) ?>"
+                    value="<?= htmlspecialchars($suggestedUsername) ?>"
                     required
                     minlength="3"
                     maxlength="100"

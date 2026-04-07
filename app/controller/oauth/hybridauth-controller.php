@@ -314,6 +314,16 @@ class HybridAuthController {
             header('Location: ' . BASE_URL . 'login');
             exit;
         }
+
+        $pending = $_SESSION['oauth_pending'];
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
+
+        $suggestedUsername = $pending['username'] ?? '';
+        $provider = $pending['provider'] ?? '';
+        $avatar = $pending['avatar'] ?? null;
+        $displayName = $pending['display_name'] ?? '';
+
         require_once BASE_PATH . '/app/view/oauth/choose-username-view.php';
     }
 
