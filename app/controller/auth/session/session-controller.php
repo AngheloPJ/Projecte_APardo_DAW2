@@ -10,7 +10,7 @@ require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/controller/auth/cookie/cookie-controller.php';
 
 class SessionController {
-    // 1h de sesión
+    // 40 minuts de sessió
     private $session_lifetime = 40 * 60;
 
     /**
