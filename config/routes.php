@@ -44,6 +44,7 @@ Route::get('article/delete/{id}', 'ArticleController@delete');
 Route::post('article/delete/{id}', 'ArticleController@delete');
 
 Route::get('article/search', 'MainController@searchArticles');
+Route::get('article/search/results', 'MainController@fetchArticles');
 Route::get('article/{id}', 'MainController@showArticle');
 
 // OAuth (Discord)
