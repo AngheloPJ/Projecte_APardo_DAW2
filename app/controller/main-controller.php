@@ -190,6 +190,7 @@ class MainController {
 
         $articles = [];
         $isAuthor = [];
+
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
@@ -205,6 +206,55 @@ class MainController {
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         require BASE_PATH . '/app/view/main/main-view.php';
+    }
+
+    /**
+     * AJAX para búsqueda instantanea de artículos
+     */
+    public function fetchArticles(): void {
+        header('Content-Type: application/json; charset=utf-8');
+        $keyword = trim($_GET['keyword'] ?? '');
+
+        if ($keyword === '' || mb_strlen($keyword) < 2) {
+            echo json_encode([
+                'success' => true,
+                'items' => []
+            ]);
+            return;
+        }
+
+        try {
+            $rows = ArticleDAO::search($keyword, 8, 0, 'published', 'DESC');
+            $items = [];
+
+            foreach ($rows as $row) {
+                $title = trim((string)($row['title'] ?? ''));
+                $content = trim((string)($row['content'] ?? ''));
+
+                $items[] = [
+                    'id' => (int)($row['id'] ?? 0),
+                    'title' => $title,
+                    'excerpt' => mb_substr($content, 0, 95),
+                    'author' => (string)($row['author_name'] ?? 'Desconocido')
+                ];
+            }
+
+            echo json_encode([
+                'success' => true,
+                'items' => $items
+            ]);
+            return;
+        } catch (Throwable $e) {
+            error_log('AJAX search error: ' . $e->getMessage());
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+                'items' => [],
+                'message' => 'No se pudo completar la búsqueda.'
+            ]);
+            return;
+        }
     }
 
 }
