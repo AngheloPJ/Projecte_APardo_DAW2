@@ -60,9 +60,11 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
     </div>
 
     <div class="barra-reserca">
-        <form action="<?= BASE_URL ?>article/search" method="GET">
-            <input type="search" name="keyword" id="reserca" placeholder="Cercar..." value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">
+        <form action="<?= BASE_URL ?>article/search" method="GET" id="search-form" data-ajax-url="<?= BASE_URL ?>article/search/results" data-search-url="<?= BASE_URL ?>article/search">
+            <input type="search" name="keyword" id="reserca" placeholder="Cercar..." autocomplete="off" value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">
             <input type="submit" value="Cercar">
+
+            <div id="search-results" class="search-results is-hidden" role="listbox" aria-label="Resultados de búsqueda"></div>
         </form>
     </div>
 
@@ -141,6 +143,8 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
         </div>
     <?php endif; ?>
 </main>
+
+<script src="<?= BASE_URL ?>public/js/searchbar.js"></script>
         
   <?php require BASE_PATH . "/app/view/layout/footer-view.php" ?>
 </body>
