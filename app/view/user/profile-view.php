@@ -1,14 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-// Que quiero - como quiero
-$isProfile = $isProfile ?? false;
-$formTitle = $formTitle ?? 'Mi Perfil';
-
-$formTitleIcon = $formTitleIcon ?? (BASE_URL . 'public/uploads/avatars/default.webp');
-$currentAvatar = $currentAvatar ?? (BASE_URL . 'public/uploads/avatars/default.webp');
-$actionUrl = $actionUrl ?? (BASE_URL . 'profile/edit-submit');
-
 ?>
 
 <html lang="ca">

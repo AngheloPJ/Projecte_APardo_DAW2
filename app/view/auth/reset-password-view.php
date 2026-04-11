@@ -1,10 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-/* Que quiero - como quiero [ft. Ikerby - Persistencia 2025] */
-$token = $token ?? '';
-$error = $error ?? null;
-
 ?>
 
 <!DOCTYPE html>
@@ -53,9 +48,11 @@ $error = $error ?? null;
 
                 <button type="submit" class="btn-login">RESTABLECER CONTRASEÑA</button>
 
-                <?php if ($error): ?>
+                <?php if (!empty($errorMessages)): ?>
                     <div class="errores">
-                        <p><?= nl2br(htmlspecialchars($error)) ?></p>
+                        <?php foreach ($errorMessages as $err): ?>
+                            <p><?= htmlspecialchars($err) ?></p>
+                        <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </form>

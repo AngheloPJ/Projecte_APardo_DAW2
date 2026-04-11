@@ -68,6 +68,9 @@ class MainController {
 
         $options = range(1, min($total, 20));
         $pageOptions = range(1, $totalPages);
+        $searchKeyword = '';
+        $paginationBasePath = BASE_URL . 'home';
+        $paginationExtraQuery = '';
         
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
@@ -137,6 +140,9 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $searchKeyword = '';
+        $paginationBasePath = BASE_URL . 'my-articles';
+        $paginationExtraQuery = '';
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
@@ -190,6 +196,7 @@ class MainController {
 
         $articles = [];
         $isAuthor = [];
+
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
@@ -201,10 +208,62 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $searchKeyword = $keyword;
+        $paginationBasePath = BASE_URL . 'article/search';
+        $paginationExtraQuery = '&keyword=' . urlencode($keyword);
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         require BASE_PATH . '/app/view/main/main-view.php';
+    }
+
+    /**
+     * AJAX para búsqueda instantanea de artículos
+     */
+    public function fetchArticles(): void {
+        header('Content-Type: application/json; charset=utf-8');
+        $keyword = trim($_GET['keyword'] ?? '');
+
+        if ($keyword === '' || mb_strlen($keyword) < 2) {
+            echo json_encode([
+                'success' => true,
+                'items' => []
+            ]);
+            return;
+        }
+
+        try {
+            $rows = ArticleDAO::search($keyword, 8, 0, 'published', 'DESC');
+            $items = [];
+
+            foreach ($rows as $row) {
+                $title = trim((string)($row['title'] ?? ''));
+                $content = trim((string)($row['content'] ?? ''));
+
+                $items[] = [
+                    'id' => (int)($row['id'] ?? 0),
+                    'title' => $title,
+                    'excerpt' => mb_substr($content, 0, 95),
+                    'author' => (string)($row['author_name'] ?? 'Desconocido')
+                ];
+            }
+
+            echo json_encode([
+                'success' => true,
+                'items' => $items
+            ]);
+            return;
+        } catch (Throwable $e) {
+            error_log('AJAX search error: ' . $e->getMessage());
+            http_response_code(500);
+
+            echo json_encode([
+                'success' => false,
+                'items' => [],
+                'message' => 'No se pudo completar la búsqueda.'
+            ]);
+            return;
+        }
     }
 
 }

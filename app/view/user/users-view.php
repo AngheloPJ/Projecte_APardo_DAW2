@@ -1,6 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-require_once BASE_PATH . '/app/utils/avatar-utils.php';
 ?>
 
 <html lang="ca">
@@ -53,31 +52,30 @@ require_once BASE_PATH . '/app/utils/avatar-utils.php';
                     <?php foreach ($users as $u): ?>
                     <tr>
                         <td>
-                            <?php $avatarUrl = buildAvatarURL($u->getAvatarUrl()); ?>
-                            <img src="<?= htmlspecialchars($avatarUrl) ?>" 
-                                alt="Avatar de <?= htmlspecialchars($u->getDisplayName()) ?>" 
+                            <img src="<?= htmlspecialchars($u['avatarUrl']) ?>" 
+                                alt="Avatar de <?= htmlspecialchars($u['displayName']) ?>" 
                                 class="user-avatar-small">
                         </td>
 
-                        <td><?= $u->getId() ?></td>
-                        <td>@<?= htmlspecialchars($u->getUsername()) ?></td>
-                        <td><?= htmlspecialchars($u->getDisplayName()) ?></td>
-                        <td><?= htmlspecialchars($u->getEmail()) ?></td>
+                        <td><?= $u['id'] ?></td>
+                        <td>@<?= htmlspecialchars($u['username']) ?></td>
+                        <td><?= htmlspecialchars($u['displayName']) ?></td>
+                        <td><?= htmlspecialchars($u['email']) ?></td>
                         <td>
-                            <span class="role-badge role-<?= $u->getRole()->value ?>">
-                                <?= $u->getRole() === Role::ADMIN ? 'Admin' : 'Usuario' ?>
+                            <span class="role-badge role-<?= $u['roleValue'] ?>">
+                                <?= $u['roleLabel'] ?>
                             </span>
                         </td>
-                        <td><?= date('d/m/Y', strtotime($u->getCreatedAt())) ?></td>
+                        <td><?= htmlspecialchars($u['createdAtFormatted']) ?></td>
                         <td class="acciones">
-                            <a href="<?= BASE_URL ?>admin/users/edit/<?= $u->getId() ?>" class="btn-editar">
+                            <a href="<?= BASE_URL ?>admin/users/edit/<?= $u['id'] ?>" class="btn-editar">
                                 Editar
                             </a>
-                            <?php if ($currentUser->getId() !== $u->getId()): ?>
+                            <?php if ($u['canDelete']): ?>
                                 <form 
-                                    action="<?= BASE_URL ?>admin/users/delete/<?= $u->getId() ?>" 
+                                    action="<?= BASE_URL ?>admin/users/delete/<?= $u['id'] ?>" 
                                     method="post" 
-                                    onsubmit="return confirm('¿Seguro que quieres eliminar a <?= htmlspecialchars($u->getDisplayName()) ?>?')"
+                                    onsubmit="return confirm('¿Seguro que quieres eliminar a <?= htmlspecialchars($u['displayName']) ?>?')"
                                 >
                                     <button type="submit" class="btn-borrar">Eliminar</button>
                                 </form>

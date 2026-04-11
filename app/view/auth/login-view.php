@@ -1,12 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-$errors = [];
-
-if (!isset($error)) $error = null;
-if ($error) $errors[] = $error;
-
-$successMsg = isset($success) ? $success : null;
 ?>
 
 <!DOCTYPE html>
@@ -42,7 +35,7 @@ $successMsg = isset($success) ? $success : null;
                     id="user" 
                     name="user" 
                     placeholder="correo@sapalomera.cat" 
-                    value="<?= htmlspecialchars($_POST['user'] ?? '') ?>"
+                    value="<?= htmlspecialchars($userInputValue) ?>"
                     required
                 >
                 <label for="user">Usuario o Correo</label>
@@ -73,9 +66,9 @@ $successMsg = isset($success) ? $success : null;
                 <div class="g-recaptcha" data-sitekey="<?= RECAPTCHA_SITEKEY ?>"></div>
             <?php endif; ?>
 
-            <?php if ($errors): ?>
+            <?php if (!empty($errorMessages)): ?>
                 <div class="errores">
-                    <?php foreach ($errors as $err): ?>
+                    <?php foreach ($errorMessages as $err): ?>
                         <p><?= htmlspecialchars($err) ?></p>
                     <?php endforeach; ?>
                 </div>

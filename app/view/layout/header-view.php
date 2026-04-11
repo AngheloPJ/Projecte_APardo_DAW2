@@ -1,9 +1,4 @@
 <?php
-    /* Que quiero - como quiero [ft. Ikerby] */
-
-    $isLogged = $isLogged ?? false;
-    $currentUser = $currentUser ?? null;
-    $avatarUrl = $avatarUrl ?? (BASE_URL . 'public/uploads/avatars/default.webp');
 ?>
 
 <html lang="ca">

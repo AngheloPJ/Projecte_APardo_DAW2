@@ -1,18 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-$errors = [];
-if (!isset($error)) {
-    $error = null;
-}
-
-if ($error) {
-    if (is_string($error) && strpos($error, "\n") !== false) {
-        $errors = array_filter(explode("\n", $error));
-    } else {
-        $errors[] = $error;
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="cat">
@@ -38,7 +25,7 @@ if ($error) {
                     id="username" 
                     name="username" 
                     placeholder="@TuUsuario" 
-                    value="<?= htmlspecialchars($_POST['username'] ?? '') ?>"
+                    value="<?= htmlspecialchars($formUsername) ?>"
                     required
                 >
                 <label for="username">Nombre de usuario</label>
@@ -50,7 +37,7 @@ if ($error) {
                     id="displayname" 
                     name="displayname" 
                     placeholder="Tu nombre público" 
-                    value="<?= htmlspecialchars($_POST['displayname'] ?? '') ?>"
+                    value="<?= htmlspecialchars($formDisplayName) ?>"
                 >
                 <label for="displayname">Nombre para mostrar (opcional)</label>
             </div>
@@ -61,7 +48,7 @@ if ($error) {
                     id="email" 
                     name="email" 
                     placeholder="correo@sapalomera.cat" 
-                    value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                    value="<?= htmlspecialchars($formEmail) ?>"
                     required
                 >
                 <label for="email">Correo electrónico</label>
@@ -91,9 +78,9 @@ if ($error) {
 
             <button type="submit" class="btn-register">REGISTRARSE</button>
 
-            <?php if ($errors): ?>
+            <?php if (!empty($errorMessages)): ?>
                 <div class="errores">
-                    <?php foreach ($errors as $err): ?>
+                    <?php foreach ($errorMessages as $err): ?>
                         <p><?= htmlspecialchars($err) ?></p>
                     <?php endforeach; ?>
                 </div>

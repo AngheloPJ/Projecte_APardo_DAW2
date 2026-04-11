@@ -1,16 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-// Que quiero - como quiero
-
-$error = $error ?? null;
-$suggestedUsername = $suggestedUsername ?? '';
-$provider = $provider ?? '';
-$avatar = $avatar ?? null;
-$displayName = $displayName ?? '';
-
-// --
-
 ?>
 <!DOCTYPE html>
 <html lang="cat">

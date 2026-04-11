@@ -17,8 +17,12 @@ class PasswordResetController {
      * Mostrar formulario de recuperar contraseña
      */
     public function showForgotPasswordForm(): void {
-        $error = null;
-        $success = null;
+        $successMsg = null;
+        $emailValue = '';
+        $errorMessages = [];
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
         require BASE_VIEW . '/auth/forgot-password-view.php';
     }
 
@@ -34,9 +38,15 @@ class PasswordResetController {
         $email = trim($_POST['email'] ?? '');
         $error = null;
         $success = null;
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         if (empty($email)) {
             $error = "Debes introducir un correo electrónico.";
+            $successMsg = null;
+            $emailValue = $email;
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_VIEW . '/auth/forgot-password-view.php';
             return;
         }
@@ -55,6 +65,9 @@ class PasswordResetController {
         }
 
         $success = "¡Correo enviado! Revisa tu bandeja de correos.";
+        $successMsg = $success;
+        $emailValue = $email;
+        $errorMessages = [];
         require BASE_VIEW . '/auth/forgot-password-view.php';
     }
 
@@ -64,12 +77,16 @@ class PasswordResetController {
     public function showResetPasswordForm(): void {
         $token = $_GET['token'] ?? '';
         $error = null;
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         if (!$token || !PasswordResetDAO::getByToken($token)) {
             $error = "El enlace no es válido o ha caducado. Por favor, solicita uno nuevo.";
             $token = '';
         }
 
+        $errorMessages = $this->splitErrorMessages($error);
         require BASE_VIEW . '/auth/reset-password-view.php';
     }
 
@@ -86,6 +103,9 @@ class PasswordResetController {
         $password = $_POST['password'] ?? '';
         $confirm = $_POST['confirm'] ?? '';
         $error = null;
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         // Check | Token válido
         $resetData = PasswordResetDAO::getByToken($token);
@@ -93,6 +113,7 @@ class PasswordResetController {
         if (!$resetData) {
             $error = "Token inválido o caducado.";
             $token = '';
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
@@ -100,6 +121,7 @@ class PasswordResetController {
         // Check | Contraseñas
         if ($password !== $confirm) {
             $error = "Las contraseñas no coinciden.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
@@ -107,7 +129,8 @@ class PasswordResetController {
         $errors = $this->validatePassword($password);
         if (!empty($errors)) {
             $error = "La contraseña debe incluir:\n" . implode("\n", $errors);
-            require BASE_PATH . '/app/view/auth/reset-password-view.php';
+            $errorMessages = $this->splitErrorMessages($error);
+            require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
 
@@ -181,4 +204,17 @@ class PasswordResetController {
             return false;
         }
     }
+
+    private function splitErrorMessages(?string $error): array {
+        if (!$error) {
+            return [];
+        }
+
+        if (strpos($error, "\n") !== false) {
+            return array_values(array_filter(explode("\n", $error)));
+        }
+
+        return [$error];
+    }
+
 }
