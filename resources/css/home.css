@@ -128,28 +128,6 @@ main .barra-reserca #btnCercar {
     color: var(--color-text-primary);
 }
 
-/* Barra de acciones */
-.actions-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5em;
-    margin-bottom: 1.5em;
-    background-color: var(--color-secondary);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.actions-left {
-    display: flex;
-    gap: 1em;
-}
-
-.actions-right {
-    display: flex;
-    gap: 1em;
-}
-
 /* Estilo de cada artículo */
 .articles {
     display: grid;
@@ -213,10 +191,13 @@ main .barra-reserca #btnCercar {
     color: rgba(0, 0, 0, 0.7);
     font-size: 0.95rem;
     line-height: 1.4;
-    max-height: 3.5em;
-    /* aprox 2 lines */
+    max-height: 3.9em;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 /* Créditos: autor a la izquierda, fecha a la derecha */

@@ -46,13 +46,7 @@ class ArticleController {
             }
         }
 
-        $currentUser = $this->currentUser;
-        $isLogged = $this->currentUser !== null;
-        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
-        [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-            $this->getArticleFormData($article, null, null);
-
-        require BASE_PATH . '/app/view/article/article-view.php';
+        $this->renderArticleForm($article, $errorMsg);
     }
 
     /**
@@ -69,30 +63,33 @@ class ArticleController {
             return;
         }
 
-        $isLogged = $this->currentUser !== null;
-        $currentUser = $this->currentUser;
-        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
-
         $title   = trim($_POST['titol'] ?? '');
         $content = trim($_POST['cos'] ?? '');
+        $steamImageUrl = trim($_POST['steam_image_url'] ?? '');
+        $steamSourceUrl = trim($_POST['steam_source_url'] ?? '');
 
         // Validaciones
         if (empty($title) || empty($content)) {
             $errorMsg = 'El título y el contenido son obligatorios.';
             $article = null;
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
             return;
         }
 
         if (strlen($title) > 150) {
             $errorMsg = 'El título no puede exceder los 150 caracteres.';
             $article = null;
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
             return;
+        }
+
+        if ($steamSourceUrl !== '') {
+            $existingId = ArticleDAO::findIdBySourceUrl($steamSourceUrl);
+            if ($existingId !== null) {
+                $errorMsg = 'Esta noticia de Steam ya está publicada.';
+                $this->renderArticleForm(null, $errorMsg);
+                return;
+            }
         }
 
         // Generar slug único
@@ -100,6 +97,9 @@ class ArticleController {
 
         // Subir imagen si existe
         $imageUrl = $this->uploadArticleImage();
+        if ($imageUrl === null) {
+            $imageUrl = $this->sanitizeExternalImageUrl($steamImageUrl);
+        }
 
         // Crear artículo
         try {
@@ -118,9 +118,7 @@ class ArticleController {
             error_log("Error al crear artículo: " . $e->getMessage());
             $errorMsg = 'Error al crear el artículo. Por favor, inténtalo de nuevo.';
             $article = null;
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
         }
     }
 
@@ -137,10 +135,6 @@ class ArticleController {
             $this->showForm($id);
             return;
         }
-
-        $isLogged = $this->currentUser !== null;
-        $currentUser = $this->currentUser;
-        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         $article = ArticleDAO::getById($id);
         
@@ -162,17 +156,13 @@ class ArticleController {
         // Validaciones
         if (empty($title) || empty($content)) {
             $errorMsg = 'El título y el contenido son obligatorios.';
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
             return;
         }
 
         if (strlen($title) > 150) {
             $errorMsg = 'El título no puede exceder los 150 caracteres.';
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
             return;
         }
 
@@ -198,9 +188,7 @@ class ArticleController {
         } catch (Exception $e) {
             error_log("Error al actualizar artículo: " . $e->getMessage());
             $errorMsg = 'Error al actualizar el artículo.';
-            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
-                $this->getArticleFormData($article, $title, $content);
-            require BASE_PATH . '/app/view/article/article-view.php';
+            $this->renderArticleForm($article, $errorMsg);
         }
     }
 
@@ -258,17 +246,29 @@ class ArticleController {
             || $this->currentUser->isAdmin();
     }
 
-    private function getArticleFormData(?Article $article, ?string $titleValue, ?string $contentValue): array {
-        $isEdit = $article !== null;
+    private function renderArticleForm(?Article $article, string $errorMsg = ''): void {
+        $viewData = $this->prepareFormViewData($article, $errorMsg);
 
-        $formTitle = $isEdit ? 'Editar artículo' : 'Crear nuevo artículo';
-        $idValue = $isEdit ? (string)$article->getId() : '';
-        $title = $titleValue ?? ($isEdit ? $article->getTitle() : '');
-        $content = $contentValue ?? ($isEdit ? $article->getContent() : '');
-        $imageUrl = $isEdit ? (string)$article->getImageUrl() : '';
-        $actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $article->getId() : BASE_URL . 'article/create-submit';
+        $isEdit = $viewData['isEdit'];
+        $formTitle = $viewData['formTitle'];
+        $idValue = $viewData['idValue'];
+        $titleValue = $viewData['titleValue'];
+        $contentValue = $viewData['contentValue'];
+        $imageUrl = $viewData['imageUrl'];
+        $steamImageUrl = $viewData['steamImageUrl'];
+        $steamSourceUrl = $viewData['steamSourceUrl'];
+        $createPreviewSrc = $viewData['createPreviewSrc'];
+        $currentImageSrc = $viewData['currentImageSrc'];
+        $actionUrl = $viewData['actionUrl'];
+        $currentUser = $viewData['currentUser'];
+        $isLogged = $viewData['isLogged'];
+        $avatarUrl = $viewData['avatarUrl'];
+        $popularGames = $viewData['popularGames'];
+        $defaultSteamAppId = $viewData['defaultSteamAppId'];
+        $defaultInPopularGames = $viewData['defaultInPopularGames'];
+        $steamDefaultCount = $viewData['steamDefaultCount'];
 
-        return [$isEdit, $formTitle, $idValue, $title, $content, $imageUrl, $actionUrl];
+        require BASE_PATH . '/app/view/article/article-view.php';
     }
 
     /**
@@ -346,5 +346,113 @@ class ArticleController {
         if (file_exists($fullPath) && is_file($fullPath)) {
             @unlink($fullPath);
         }
+    }
+
+    private function resolveArticleImageUrl(?string $imageUrl): ?string {
+        if (!$imageUrl) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $imageUrl)) {
+            return $imageUrl;
+        }
+
+        return BASE_URL . ltrim($imageUrl, '/');
+    }
+
+    private function sanitizeExternalImageUrl(?string $imageUrl): ?string {
+        if (!$imageUrl) {
+            return null;
+        }
+
+        $imageUrl = trim($imageUrl);
+        if ($imageUrl === '') {
+            return null;
+        }
+
+        return preg_match('#^https?://#i', $imageUrl) ? $imageUrl : null;
+    }
+
+    private function buildSteamImportData(): array {
+        $popularGames = [
+            ['id' => 730, 'name' => 'Counter-Strike 2'],
+            ['id' => 570, 'name' => 'Dota 2'],
+            ['id' => 271590, 'name' => 'Grand Theft Auto V'],
+            ['id' => 1172470, 'name' => 'Apex Legends'],
+            ['id' => 1245620, 'name' => 'Elden Ring'],
+            ['id' => 1091500, 'name' => 'Cyberpunk 2077'],
+            ['id' => 1086940, 'name' => 'Baldur\'s Gate 3'],
+            ['id' => 292030, 'name' => 'The Witcher 3'],
+            ['id' => 381210, 'name' => 'Dead by Daylight'],
+            ['id' => 440, 'name' => 'Team Fortress 2'],
+        ];
+
+        $defaultSteamAppId = (int)STEAM_DEFAULT_APPID;
+        $defaultInPopularGames = false;
+
+        foreach ($popularGames as $game) {
+            if ((int)$game['id'] === $defaultSteamAppId) {
+                $defaultInPopularGames = true;
+                break;
+            }
+        }
+
+        return [
+            'popularGames' => $popularGames,
+            'defaultSteamAppId' => $defaultSteamAppId,
+            'defaultInPopularGames' => $defaultInPopularGames,
+            'steamDefaultCount' => 5,
+        ];
+    }
+
+    private function prepareFormViewData(?Article $article = null, string $errorMsg = ''): array {
+        $isEdit = $article !== null;
+        $formTitle = $isEdit ? 'Editar artículo' : 'Crear nuevo artículo';
+        $idValue = $isEdit ? $article->getId() : '';
+
+        if ($isEdit) {
+            $titleValue = $article->getTitle();
+            $contentValue = $article->getContent();
+            $imageUrl = $article->getImageUrl();
+            $steamImageUrl = '';
+            $steamSourceUrl = '';
+            $createPreviewSrc = '';
+            $currentImageSrc = $this->resolveArticleImageUrl($imageUrl);
+        } else {
+            $titleValue = isset($_POST['titol']) ? trim($_POST['titol'] ?? '') : '';
+            $contentValue = isset($_POST['cos']) ? trim($_POST['cos'] ?? '') : '';
+            $imageUrl = '';
+            $steamImageUrl = trim($_POST['steam_image_url'] ?? '');
+            $steamSourceUrl = trim($_POST['steam_source_url'] ?? '');
+            $createPreviewSrc = preg_match('#^https?://#i', $steamImageUrl) ? $steamImageUrl : '';
+            $currentImageSrc = null;
+        }
+
+        $currentUser = $this->currentUser;
+        $isLogged = $this->currentUser !== null;
+        $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
+        $actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $idValue : BASE_URL . 'article/create-submit';
+
+        return array_merge(
+            [
+                'article' => $article,
+                'isEdit' => $isEdit,
+                'errorMsg' => $errorMsg,
+                'formTitle' => $formTitle,
+                'idValue' => $idValue,
+                'titleValue' => $titleValue,
+                'contentValue' => $contentValue,
+                'imageUrl' => $imageUrl,
+                'steamImageUrl' => $steamImageUrl,
+                'steamSourceUrl' => $steamSourceUrl,
+                'createPreviewSrc' => $createPreviewSrc,
+                'currentImageSrc' => $currentImageSrc,
+                'actionUrl' => $actionUrl,
+                'currentUser' => $currentUser,
+                'isLogged' => $isLogged,
+                'avatarUrl' => $avatarUrl,
+            ],
+            $this->buildSteamImportData()
+        );
     }
 }

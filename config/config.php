@@ -58,3 +58,7 @@ define('GITHUB_CLIENT_SECRET', $_ENV['GITHUB_CLIENT_SECRET'] ?? '');
 // ReCaptcha
 define('RECAPTCHA_SITEKEY', $_ENV['RECAPTCHA_SITEKEY'] ?? '');
 define('RECAPTCHA_SECRET', $_ENV['RECAPTCHA_SECRET'] ?? '');
+
+// Steam API
+define('STEAM_API_KEY', $_ENV['STEAM_API_KEY'] ?? '');
+define('STEAM_DEFAULT_APPID', (int)($_ENV['STEAM_DEFAULT_APPID'] ?? 730));

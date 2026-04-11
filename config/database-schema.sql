@@ -37,6 +37,20 @@ INSERT INTO `users` (`uuid`, `username`, `displayname`, `email`, `password`, `ro
 (UUID(), 'anghelopj', 'AngheloPJ', 'anghelopj@gmail.com', '$2y$10$mwbZ9lnbxFejs9bYUvEA1Ot0t/6ak8ah3UPGV3fOWDrwV2L24YHmm', 1);
 
 -- ·································
+-- ·       Tabla | API Keys        ·
+-- ·································
+DROP TABLE IF EXISTS `api_keys`;
+CREATE TABLE `api_keys` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) NOT NULL,
+  `key_hash` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_api_keys_user` (`user_id`),
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ·································
 -- ·       Tabla | Articles        ·
 -- ·································
 DROP TABLE IF EXISTS `articles`;
