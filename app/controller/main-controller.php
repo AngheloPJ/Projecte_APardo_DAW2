@@ -57,11 +57,15 @@ class MainController {
 
         $articles = [];
         $isAuthor = [];
+        $articleImageSrc = [];
+        $articlePreview = [];
         
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+            $articleImageSrc[$article->getId()] = $this->resolveArticleImageUrl($article->getImageUrl());
+            $articlePreview[$article->getId()] = $this->buildArticlePreview($article->getContent());
 
             $isAuthor[$article->getId()] = $currentUser && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
@@ -129,11 +133,15 @@ class MainController {
 
         $articles = [];
         $isAuthor = [];
+        $articleImageSrc = [];
+        $articlePreview = [];
 
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+            $articleImageSrc[$article->getId()] = $this->resolveArticleImageUrl($article->getImageUrl());
+            $articlePreview[$article->getId()] = $this->buildArticlePreview($article->getContent());
 
             $isAuthor[$article->getId()] = $currentUser && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
         }
@@ -196,11 +204,15 @@ class MainController {
 
         $articles = [];
         $isAuthor = [];
+        $articleImageSrc = [];
+        $articlePreview = [];
 
         foreach ($articlesData as $row) {
             $article = Article::fromArray($row);
             $article->setAuthorName($row['author_name'] ?? 'Desconocido');
             $articles[] = $article;
+            $articleImageSrc[$article->getId()] = $this->resolveArticleImageUrl($article->getImageUrl());
+            $articlePreview[$article->getId()] = $this->buildArticlePreview($article->getContent());
 
             $isAuthor[$article->getId()] = $currentUser
                 && ($currentUser->getId() === $article->getAuthorId() || $currentUser->isAdmin());
@@ -215,6 +227,31 @@ class MainController {
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
         require BASE_PATH . '/app/view/main/main-view.php';
+    }
+
+    private function resolveArticleImageUrl(?string $imageUrl): ?string {
+        if (!$imageUrl) {
+            return null;
+        }
+
+        if (preg_match('#^https?://#i', $imageUrl)) {
+            return $imageUrl;
+        }
+
+        return BASE_URL . ltrim($imageUrl, '/');
+    }
+
+    private function buildArticlePreview(string $content, int $maxLength = 180): string {
+        $normalized = preg_replace('/\s+/', ' ', trim($content));
+        if ($normalized === null) {
+            $normalized = trim($content);
+        }
+
+        if (strlen($normalized) <= $maxLength) {
+            return $normalized;
+        }
+
+        return rtrim(substr($normalized, 0, $maxLength - 3)) . '...';
     }
 
     /**

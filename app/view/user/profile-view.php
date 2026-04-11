@@ -13,6 +13,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/profile.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
+    <script src="<?= BASE_URL ?>public/js/profile.js"></script>
 </head>
 <body>
 
@@ -49,28 +50,29 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                         >
                     </div>
                     
-                    <?php if ($user->getAvatarUrl()): ?>
+                    <?php if ($profileHasAvatar): ?>
                         <button type="button" class="remove-avatar" onclick="removeAvatar()">
                             Eliminar avatar
                         </button>
                         <input type="hidden" id="remove-avatar-flag" name="remove_avatar" value="0">
+                        <input type="hidden" id="default-avatar-url" value="<?= BASE_URL ?>public/uploads/avatars/default.webp">
                     <?php endif; ?>
                 </div>
             </div>
 
             <!-- Inputs -->
             <div class="form-group">
-                <input type="text" id="username" name="username" placeholder="@Usuario" value="<?= htmlspecialchars($user->getUsername()) ?>" required>
+                <input type="text" id="username" name="username" placeholder="@Usuario" value="<?= htmlspecialchars($profileUsername) ?>" required>
                 <label for="username">Nombre de usuario</label>
             </div>
 
             <div class="form-group">
-                <input type="text" id="displayname" name="displayname" placeholder="Nombre público" value="<?= htmlspecialchars($user->getDisplayName()) ?>">
+                <input type="text" id="displayname" name="displayname" placeholder="Nombre público" value="<?= htmlspecialchars($profileDisplayName) ?>">
                 <label for="displayname">Nombre para mostrar</label>
             </div>
 
             <div class="form-group">
-                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($user->getEmail()) ?>" required>
+                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($profileEmail) ?>" required>
                 <label for="email">Correo electrónico</label>
             </div>
 
@@ -99,52 +101,30 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                 <div class="form-group">
                     <label for="rol">Rol del usuario:</label>
                     <select id="rol" name="rol">
-                        <option value="<?= Role::USER->value ?>" <?= $user->getRole()->value === Role::USER->value ? 'selected' : '' ?>>Usuario</option>
-                        <option value="<?= Role::ADMIN->value ?>" <?= $user->getRole()->value === Role::ADMIN->value ? 'selected' : '' ?>>Administrador</option>
+                        <option value="<?= $roleUserValue ?>" <?= $isRoleUser ? 'selected' : '' ?>>Usuario</option>
+                        <option value="<?= $roleAdminValue ?>" <?= $isRoleAdmin ? 'selected' : '' ?>>Administrador</option>
                     </select>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($errorMsg)): ?>
-                <p class="error"><?= $errorMsg ?></p>
+                <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
+            <?php endif; ?>
+
+            <?php if ($isProfile): ?>
+                <div class="api-key-card">
+                    <h3>API KEY</h3>
+                    <p>Copia la API KEY porque no la podrás ver nuevamente.</p>
+                    <button type="button" id="generate-api-key-btn" class="api-key-btn" data-url="<?= BASE_URL ?>profile/api-key/generate">Generar API KEY</button>
+                    <p id="api-key-status" class="api-key-status"></p>
+                    <pre id="api-key-value" class="api-key-value"></pre>
+                </div>
             <?php endif; ?>
 
             <button type="submit">Guardar Cambios</button>
         </form>
     </div>
 </main>
-
-<script>
-function previewAvatar(input) {
-    const fileNameDiv = document.getElementById('file-name');
-    const avatarImg = document.getElementById('avatar-img');
-    
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        fileNameDiv.textContent = file.name;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            avatarImg.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-        
-        const removeFlag = document.getElementById('remove-avatar-flag');
-        if (removeFlag) removeFlag.value = '0';
-    }
-}
-
-function removeAvatar() {
-    if (confirm('¿Seguro que quieres eliminar tu avatar?')) {
-        document.getElementById('remove-avatar-flag').value = '1';
-        document.getElementById('avatar-img').src = '<?= BASE_URL ?>public/uploads/avatars/default.webp';
-        
-        const avatarInput = document.getElementById('avatar');
-        avatarInput.value = '';
-        document.getElementById('file-name').textContent = '';
-    }
-}
-</script>
 
 <?php require_once BASE_PATH . '/app/view/layout/footer-view.php' ?>
 </body>

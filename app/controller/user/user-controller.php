@@ -1,6 +1,7 @@
 <?php
 
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
+require_once BASE_PATH . '/app/model/dao/ApiKeyDAO.php';
 require_once BASE_PATH . '/app/model/entity/User.php';
 require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
 require_once BASE_PATH . '/app/utils/avatar-utils.php';
@@ -59,6 +60,38 @@ class UserController {
         if (!$user) $this->show404();
 
         $this->processUserForm($user, true);
+    }
+
+    public function generateApiKey(): void {
+        header('Content-Type: application/json; charset=utf-8');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->jsonResponse(['error' => 'Método no permitido.'], 405);
+            return;
+        }
+
+        if (!$this->currentUser) {
+            $this->jsonResponse(['error' => 'No estás autentificado, debes iniciar sesión.'], 401);
+            return;
+        }
+
+        try {
+            $plainApiKey = bin2hex(random_bytes(24));
+            $keyHash = password_hash($plainApiKey, PASSWORD_DEFAULT);
+
+            if (!ApiKeyDAO::rotateForUser($this->currentUser->getId(), $keyHash)) {
+                $this->jsonResponse(['error' => 'Ha ocurrido un problema al rotar la API KEY.'], 500);
+                return;
+            }
+
+            $this->jsonResponse([
+                'success' => true,
+                'api_key' => $plainApiKey,
+            ], 201);
+        } catch (Throwable $e) {
+            error_log('Error generando API key: ' . $e->getMessage());
+            $this->jsonResponse(['error' => 'Error interno al generar API KEY.'], 500);
+        }
     }
 
     /**
@@ -352,6 +385,14 @@ class UserController {
         $actionUrl = $isProfile ? BASE_URL . 'profile/edit-submit' : BASE_URL . 'admin/users/edit-submit/' . $user->getId();
         $currentAvatar = buildAvatarURL($user->getAvatarUrl());
         $formTitleIcon = $currentAvatar;
+        $profileHasAvatar = !empty($user->getAvatarUrl());
+        $profileUsername = $user->getUsername();
+        $profileDisplayName = $user->getDisplayName();
+        $profileEmail = $user->getEmail();
+        $roleUserValue = Role::USER->value;
+        $roleAdminValue = Role::ADMIN->value;
+        $isRoleUser = $user->getRole()->value === Role::USER->value;
+        $isRoleAdmin = $user->getRole()->value === Role::ADMIN->value;
 
         require BASE_PATH . '/app/view/user/profile-view.php';
     }
@@ -364,5 +405,10 @@ class UserController {
         if (!preg_match('/\d/', $password)) $errors[] = "· Al menos un número.";
         if (!preg_match('/[\W_]/', $password)) $errors[] = "· Al menos un símbolo.";
         return $errors;
+    }
+
+    private function jsonResponse(array $payload, int $status = 200): void {
+        http_response_code($status);
+        echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }

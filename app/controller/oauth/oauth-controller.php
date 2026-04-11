@@ -159,10 +159,8 @@ class OAuthController {
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         
         $response = curl_exec($ch);
-        $curlError = curl_error($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        curl_close($ch);
         if ($httpCode !== 200) return null;
         
         $data = json_decode($response, true);
@@ -189,7 +187,6 @@ class OAuthController {
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
 
         if ($httpCode !== 200) {
             return null;
@@ -211,7 +208,6 @@ class OAuthController {
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
             $emailResponse = curl_exec($ch);
-            curl_close($ch);
 
             $emails = json_decode($emailResponse, true);
             if (is_array($emails)) {

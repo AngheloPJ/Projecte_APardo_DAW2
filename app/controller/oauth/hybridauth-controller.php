@@ -102,6 +102,22 @@ class HybridAuthController {
                 try {
                     $rawUser = $adapter->apiRequest('user');
                     $githubLogin = $rawUser->login ?? null;
+
+                    // Si GitHub no trae email en el perfil, busca en /user/emails de github
+                    if (empty($userProfile->email)) {
+                        $emails = $adapter->apiRequest('user/emails');
+                        if (is_array($emails)) {
+                            foreach ($emails as $emailItem) {
+                                $item = is_object($emailItem) ? (array)$emailItem : (array)$emailItem;
+                                $isPrimary = !empty($item['primary']);
+                                $isVerified = !empty($item['verified']);
+                                if ($isPrimary && $isVerified && !empty($item['email'])) {
+                                    $userProfile->email = (string)$item['email'];
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 } catch (\Exception $e) {
                 }
             }
@@ -123,34 +139,6 @@ class HybridAuthController {
         }
     }
 
-
-    /**
-     * 
-     */
-    private function fetchGitHubEmail(string $accessToken): ?string {
-        $ch = curl_init('https://api.github.com/user/emails');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Authorization: Bearer ' . $accessToken,
-            'Accept: application/json',
-            'User-Agent: APardo-Backend'
-        ]);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-
-        $response = curl_exec($ch);
-        curl_close($ch);
-
-        $emails = json_decode($response, true);
-        if (is_array($emails)) {
-            foreach ($emails as $email) {
-                if (!empty($email['primary']) && !empty($email['verified'])) 
-                    return $email['email'];
-            }
-        }
-        return null;
-    }
 
     /**
      * Función auxiliar para normalizar los datos para el objeto
