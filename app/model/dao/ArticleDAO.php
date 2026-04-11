@@ -72,6 +72,30 @@ class ArticleDAO {
         return $row ? Article::fromArray($row) : null;
     }
 
+    public static function findIdBySourceUrl(string $sourceUrl): ?int {
+        $sourceUrl = trim($sourceUrl);
+        if ($sourceUrl === '') {
+            return null;
+        }
+
+        $pdo = DBConnection::getConnection();
+
+        $stmt = $pdo->prepare(
+            "SELECT id
+             FROM articles
+             WHERE content LIKE :source
+             ORDER BY id DESC
+             LIMIT 1"
+        );
+
+        $stmt->execute([
+            ':source' => '%Fuente: ' . $sourceUrl . '%',
+        ]);
+
+        $id = $stmt->fetchColumn();
+        return $id !== false ? (int)$id : null;
+    }
+
     /* 
     ··························
     ·         UPDATE         ·

@@ -58,3 +58,7 @@ Route::get('oauth/hybridauth/callback/{provider}', 'OAuthCallbackController@hybr
 Route::get('oauth/choose-username', 'OAuthCallbackController@chooseUsername');
 Route::post('oauth/choose-username-submit', 'OAuthCallbackController@chooseUsernameSubmit');
 Route::get('oauth/confirm-link', 'OAuthCallbackController@confirmLink');
+
+// Steam API
+Route::get('api/steam/news', 'SteamNewsController@listNews');
+Route::post('api/steam/news/publish', 'SteamNewsController@publishAsArticle');

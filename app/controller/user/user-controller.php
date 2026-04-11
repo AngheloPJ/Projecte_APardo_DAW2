@@ -352,6 +352,14 @@ class UserController {
         $actionUrl = $isProfile ? BASE_URL . 'profile/edit-submit' : BASE_URL . 'admin/users/edit-submit/' . $user->getId();
         $currentAvatar = buildAvatarURL($user->getAvatarUrl());
         $formTitleIcon = $currentAvatar;
+        $profileHasAvatar = !empty($user->getAvatarUrl());
+        $profileUsername = $user->getUsername();
+        $profileDisplayName = $user->getDisplayName();
+        $profileEmail = $user->getEmail();
+        $roleUserValue = Role::USER->value;
+        $roleAdminValue = Role::ADMIN->value;
+        $isRoleUser = $user->getRole()->value === Role::USER->value;
+        $isRoleAdmin = $user->getRole()->value === Role::ADMIN->value;
 
         require BASE_PATH . '/app/view/user/profile-view.php';
     }

@@ -49,7 +49,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                         >
                     </div>
                     
-                    <?php if ($user->getAvatarUrl()): ?>
+                    <?php if ($profileHasAvatar): ?>
                         <button type="button" class="remove-avatar" onclick="removeAvatar()">
                             Eliminar avatar
                         </button>
@@ -60,17 +60,17 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
 
             <!-- Inputs -->
             <div class="form-group">
-                <input type="text" id="username" name="username" placeholder="@Usuario" value="<?= htmlspecialchars($user->getUsername()) ?>" required>
+                <input type="text" id="username" name="username" placeholder="@Usuario" value="<?= htmlspecialchars($profileUsername) ?>" required>
                 <label for="username">Nombre de usuario</label>
             </div>
 
             <div class="form-group">
-                <input type="text" id="displayname" name="displayname" placeholder="Nombre público" value="<?= htmlspecialchars($user->getDisplayName()) ?>">
+                <input type="text" id="displayname" name="displayname" placeholder="Nombre público" value="<?= htmlspecialchars($profileDisplayName) ?>">
                 <label for="displayname">Nombre para mostrar</label>
             </div>
 
             <div class="form-group">
-                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($user->getEmail()) ?>" required>
+                <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" value="<?= htmlspecialchars($profileEmail) ?>" required>
                 <label for="email">Correo electrónico</label>
             </div>
 
@@ -99,14 +99,14 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                 <div class="form-group">
                     <label for="rol">Rol del usuario:</label>
                     <select id="rol" name="rol">
-                        <option value="<?= Role::USER->value ?>" <?= $user->getRole()->value === Role::USER->value ? 'selected' : '' ?>>Usuario</option>
-                        <option value="<?= Role::ADMIN->value ?>" <?= $user->getRole()->value === Role::ADMIN->value ? 'selected' : '' ?>>Administrador</option>
+                        <option value="<?= $roleUserValue ?>" <?= $isRoleUser ? 'selected' : '' ?>>Usuario</option>
+                        <option value="<?= $roleAdminValue ?>" <?= $isRoleAdmin ? 'selected' : '' ?>>Administrador</option>
                     </select>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($errorMsg)): ?>
-                <p class="error"><?= $errorMsg ?></p>
+                <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
             <?php endif; ?>
 
             <button type="submit">Guardar Cambios</button>

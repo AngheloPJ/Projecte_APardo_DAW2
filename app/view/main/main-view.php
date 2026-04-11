@@ -74,14 +74,14 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
             <?php foreach ($articles as $index => $article): ?>
                 <div class="article">
                     <div class="imatge">
-                        <?php if (!empty($article->getImageUrl())): ?>
-                            <img src="<?= BASE_URL . $article->getImageUrl() ?>" alt="Imatge de l'article: <?= htmlspecialchars($article->getTitle()) ?>" width="150" aria-role="tarjeta-articulo">
+                        <?php if (!empty($articleImageSrc[$article->getId()])): ?>
+                            <img src="<?= $articleImageSrc[$article->getId()] ?>" alt="Imatge de l'article: <?= htmlspecialchars($article->getTitle()) ?>" width="150" aria-role="tarjeta-articulo">
                         <?php endif; ?>
                     </div>
                     
                     <div class="contenido">
                         <h3 class="titulo"><?= htmlspecialchars($article->getTitle()) ?></h3>
-                        <p class="descripcion"><?= htmlspecialchars($article->getContent()) ?></p>
+                        <p class="descripcion"><?= htmlspecialchars($articlePreview[$article->getId()] ?? $article->getContent()) ?></p>
                     </div>
                     
                     <div class="creditos">
