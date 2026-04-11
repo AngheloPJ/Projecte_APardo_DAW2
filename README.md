@@ -84,38 +84,6 @@ Sistemes de seguretats aplicades:
 - OAuth amb Discord
 - HybridAuth amb GitHub
 
-### Consum de dades de Steam
-
-El projecte també consumeix informació externa de Steam per convertir notícies en contingut propi de l'aplicació.
-
-- Es fa una petició a l'API pública de Steam per obtenir notícies d'un joc concret.
-- La resposta JSON es llegeix i es valida abans de mostrar-la.
-- Es neteja el contingut per eliminar HTML o format BBCode no desitjat.
-- Si la notícia porta imatge, es fa servir; si no, es genera una imatge per defecte basada en l'ID del joc.
-- També es pot publicar una notícia com a article intern perquè quedi integrada dins del sistema de la web.
-
-Aquest enfocament permet reutilitzar contingut extern i adaptar-lo al format de l'aplicació sense dependre manualment de copiar i enganxar informació.
-
-### API i autenticació
-
-Endpoints d'autenticació de l'API:
-
-- `POST /api/auth/login`: autentica l'usuari des de client extern amb `user` o `email` i `pass` o `password`.
-- `POST /api/auth/refresh`: comprova si la sessió encara és vàlida i, si existeix la cookie de recordatori, regenera l'accés.
-- `POST /api/auth/logout`: tanca la sessió i elimina el recordatori d'accés.
-- `GET /api/articles`: retorna els articles en format JSON, però només si la API key pertany al mateix usuari que té la sessió activa.
-
-En resum, la API no queda oberta per a tothom: primer cal una key vàlida, i després es comprova que el compte autenticat sigui el mateix que ha generat aquesta key.
-
-Sistemes de seguretats aplicades a l'API:
-
-   - Per protegir l'accés a les dades de l'API i evitar que una API key es pugui usar lliurement des de qualsevol compte o sessió.
-       - Les API keys es generen des del perfil de l'usuari i es poden rotar quan es vulgui.
-       - El token de `remember_me` es guarda hashejat a la base de dades per evitar que es pugui reutilitzar si algú accedeix a la BD.
-       - La sessió de l'usuari es valida abans de permetre l'accés a endpoints sensibles.
-       - La API key no només ha de ser correcta, sinó que també ha de pertànyer al mateix usuari que té la sessió iniciada.
-       - Si la sessió no coincideix amb el propietari de la API key, l'accés es denega.
-
 ## Estructura del projecte
 
 ```text
@@ -144,7 +112,9 @@ PRJ1/
 ├── public/
 │   ├── assets/
 │   ├── errors/
-│   └── uploads/
+│   ├── uploads/
+│   └── js/
+
 └── resources/
     ├── css/
     ├── fonts/
@@ -256,3 +226,35 @@ Funcionament:
 3. El controlador respon amb JSON.
 4. Els resultats es mostren en un desplegable sense recarregar la pàgina.
 5. En prémer Enter, el formulari continua fent la cerca normal.
+
+## Consum de dades de Steam
+
+El projecte també consumeix informació externa de Steam per convertir notícies en contingut propi de l'aplicació.
+
+- Es fa una petició a l'API pública de Steam per obtenir notícies d'un joc concret.
+- La resposta JSON es llegeix i es valida abans de mostrar-la.
+- Es neteja el contingut per eliminar HTML o format BBCode no desitjat.
+- Si la notícia porta imatge, es fa servir; si no, es genera una imatge per defecte basada en l'ID del joc.
+- També es pot publicar una notícia com a article intern perquè quedi integrada dins del sistema de la web.
+
+Aquest enfocament permet reutilitzar contingut extern i adaptar-lo al format de l'aplicació sense dependre manualment de copiar i enganxar informació.
+
+## API i autenticació
+
+Endpoints d'autenticació de l'API:
+
+- `POST /api/auth/login`: autentica l'usuari des de client extern amb `user` o `email` i `pass` o `password`.
+- `POST /api/auth/refresh`: comprova si la sessió encara és vàlida i, si existeix la cookie de recordatori, regenera l'accés.
+- `POST /api/auth/logout`: tanca la sessió i elimina el recordatori d'accés.
+- `GET /api/articles`: retorna els articles en format JSON, però només si la API key pertany al mateix usuari que té la sessió activa.
+
+En resum, la API no queda oberta per a tothom: primer cal una key vàlida, i després es comprova que el compte autenticat sigui el mateix que ha generat aquesta key.
+
+Sistemes de seguretats aplicades a l'API:
+
+   - Per protegir l'accés a les dades de l'API i evitar que una API key es pugui usar lliurement des de qualsevol compte o sessió.
+       - Les API keys es generen des del perfil de l'usuari i es poden rotar quan es vulgui.
+       - El token de `remember_me` es guarda hashejat a la base de dades per evitar que es pugui reutilitzar si algú accedeix a la BD.
+       - La sessió de l'usuari es valida abans de permetre l'accés a endpoints sensibles.
+       - La API key no només ha de ser correcta, sinó que també ha de pertànyer al mateix usuari que té la sessió iniciada.
+       - Si la sessió no coincideix amb el propietari de la API key, l'accés es denega.
