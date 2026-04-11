@@ -1,15 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
-$isEdit = isset($article) && $article instanceof Article;
-$formTitle = $isEdit ? 'Editar artículo' : 'Crear nuevo artículo';
-$idValue = $isEdit ? $article->getId() : '';
-
-$titleValue = $isEdit ? htmlspecialchars($article->getTitle()) : (isset($_POST['titol']) ? htmlspecialchars($_POST['titol']) : '');
-$contentValue = $isEdit ? htmlspecialchars($article->getContent()) : (isset($_POST['cos']) ? htmlspecialchars($_POST['cos']) : '');
-$imageUrl = $isEdit ? $article->getImageUrl() : '';
-
-$actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $article->getId() : BASE_URL . 'article/create-submit';
 ?>
 
 <!DOCTYPE html>
@@ -46,7 +36,7 @@ $actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $article->getId() : BASE_URL
                     id="titol" 
                     name="titol" 
                     placeholder="Título del artículo..." 
-                    value="<?= $titleValue ?>" 
+                    value="<?= htmlspecialchars($titleValue) ?>" 
                     maxlength="150"
                     required
                 >
@@ -60,7 +50,7 @@ $actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $article->getId() : BASE_URL
                     placeholder="Descripción..." 
                     rows="6" 
                     required
-                ><?= $contentValue ?></textarea>
+                ><?= htmlspecialchars($contentValue) ?></textarea>
                 <label for="cos">Contenido del artículo:</label>
             </div>
 

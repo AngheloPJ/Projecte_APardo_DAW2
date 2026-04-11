@@ -25,6 +25,11 @@ class LoginController {
         $userInput = trim($_POST['user'] ?? '');
         $password  = $_POST['contrasenya'] ?? '';
         $remember  = isset($_POST['recordar']);
+        $successMsg = null;
+        $userInputValue = $userInput;
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         // Sistema de intentos fallidos
         $attempts = $_SESSION['login_attempts'][$userInput]['contador'] ?? 0;
@@ -33,6 +38,7 @@ class LoginController {
         // Validar captcha si es necesario
         if ($captchaRequired && empty($_POST['g-recaptcha-response'])) {
             $error = "El captcha es obligatorio.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/login-view.php';
             return;
         }
@@ -64,6 +70,7 @@ class LoginController {
         $captchaRequired = $_SESSION['login_attempts'][$userInput]['contador'] >= 3;
 
         $error = "Usuario/Email o contraseña incorrectos.";
+        $errorMessages = $this->splitErrorMessages($error);
         require BASE_PATH . '/app/view/auth/login-view.php';
     }
 
@@ -81,14 +88,21 @@ class LoginController {
         $email            = trim($_POST['email'] ?? '');
         $password         = $_POST['password'] ?? '';
         $confirmPassword  = $_POST['confirmPass'] ?? '';
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         // Usar username si no hay displayname
         if (empty($displayName)) $displayName = $username;
         $username = strtolower($username); // Transformar username a toLowerCase()
+        $formUsername = $username;
+        $formDisplayName = $displayName;
+        $formEmail = $email;
 
         // Validación de campos vacíos
         if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
             $error = "Todos los campos son obligatorios.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -96,6 +110,7 @@ class LoginController {
         // Validar email
         if (!$this->isValidEmail($email)) {
             $error = "El email no es válido.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -103,6 +118,7 @@ class LoginController {
         // Validar contraseñas coinciden
         if ($password !== $confirmPassword) {
             $error = "Las contraseñas no coinciden.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -111,6 +127,7 @@ class LoginController {
         $passwordErrors = $this->validatePassword($password);
         if (!empty($passwordErrors)) {
             $error = implode("\n", $passwordErrors);
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -118,6 +135,7 @@ class LoginController {
         // Verificar si el username ya existe
         if (UserDAO::getByUsername($username)) {
             $error = "Ese nombre de usuario ya existe.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -125,6 +143,7 @@ class LoginController {
         // Verificar si el email ya existe
         if (UserDAO::getByEmail($email)) {
             $error = "Ese correo electrónico ya está registrado.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -154,6 +173,7 @@ class LoginController {
         } catch (Exception $e) {
             error_log("Error al crear usuario: " . $e->getMessage());
             $error = "Error al crear el usuario. Por favor, inténtalo de nuevo.";
+            $errorMessages = $this->splitErrorMessages($error);
             require BASE_PATH . '/app/view/auth/register-view.php';
         }
     }
@@ -164,17 +184,24 @@ class LoginController {
      */
     public function showLoginForm(): void {
         $this->redirectIfLoggedIn();
-        
-        $error = null;
+
+        $error = $_SESSION['error'] ?? null;
+        unset($_SESSION['error']);
         $captchaRequired = false;
-        
+
         // Mensaje de éxito si viene del reseteo
         $success = null;
         if (isset($_SESSION['reset_success'])) {
             $success = "Contraseña actualizada correctamente. Ya puedes iniciar sesión.";
             unset($_SESSION['reset_success']);
         }
-        
+
+        $errorMessages = $this->splitErrorMessages($error);
+        $successMsg = $success;
+        $userInputValue = '';
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
         require BASE_PATH . '/app/view/auth/login-view.php';
     }
 
@@ -183,12 +210,28 @@ class LoginController {
      */
     public function showRegisterForm(): void {
         $this->redirectIfLoggedIn();
-        
-        $error = null;
-        
+
+        $errorMessages = [];
+        $formUsername = '';
+        $formDisplayName = '';
+        $formEmail = '';
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
         require BASE_PATH . '/app/view/auth/register-view.php';
     }
 
+    private function splitErrorMessages(?string $error): array {
+        if (!$error) {
+            return [];
+        }
+
+        if (strpos($error, "\n") !== false) {
+            return array_values(array_filter(explode("\n", $error)));
+        }
+
+        return [$error];
+    }
 
     /* 
     ··························

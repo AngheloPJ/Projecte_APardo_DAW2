@@ -1,11 +1,5 @@
 <?php
 require_once BASE_PATH . '/app/view/layout/header-view.php';
-
- $errors = [];
-if (!isset($error)) $error = null;
-if ($error) $errors[] = $error;
-
- $successMsg = isset($success) ? $success : null;
 ?>
 
 <!DOCTYPE html>
@@ -55,15 +49,15 @@ if ($error) $errors[] = $error;
                         id="email" 
                         name="email" 
                         placeholder="correo@sapalomera.cat" 
-                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
+                        value="<?= htmlspecialchars($emailValue) ?>"
                         required
                     >
                     <label for="email">Correo electrónico</label>
                 </div>
 
-                <?php if ($errors): ?>
+                <?php if (!empty($errorMessages)): ?>
                     <div class="errores">
-                        <?php foreach ($errors as $err): ?>
+                        <?php foreach ($errorMessages as $err): ?>
                             <p><?= htmlspecialchars($err) ?></p>
                         <?php endforeach; ?>
                     </div>

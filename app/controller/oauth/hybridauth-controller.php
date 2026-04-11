@@ -323,6 +323,9 @@ class HybridAuthController {
         $provider = $pending['provider'] ?? '';
         $avatar = $pending['avatar'] ?? null;
         $displayName = $pending['display_name'] ?? '';
+        $isLogged = false;
+        $currentUser = null;
+        $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
         require_once BASE_PATH . '/app/view/oauth/choose-username-view.php';
     }

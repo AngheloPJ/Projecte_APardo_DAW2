@@ -49,6 +49,8 @@ class ArticleController {
         $currentUser = $this->currentUser;
         $isLogged = $this->currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
+        [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+            $this->getArticleFormData($article, null, null);
 
         require BASE_PATH . '/app/view/article/article-view.php';
     }
@@ -78,6 +80,8 @@ class ArticleController {
         if (empty($title) || empty($content)) {
             $errorMsg = 'El título y el contenido son obligatorios.';
             $article = null;
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
             return;
         }
@@ -85,6 +89,8 @@ class ArticleController {
         if (strlen($title) > 150) {
             $errorMsg = 'El título no puede exceder los 150 caracteres.';
             $article = null;
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
             return;
         }
@@ -112,6 +118,8 @@ class ArticleController {
             error_log("Error al crear artículo: " . $e->getMessage());
             $errorMsg = 'Error al crear el artículo. Por favor, inténtalo de nuevo.';
             $article = null;
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
         }
     }
@@ -154,12 +162,16 @@ class ArticleController {
         // Validaciones
         if (empty($title) || empty($content)) {
             $errorMsg = 'El título y el contenido son obligatorios.';
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
             return;
         }
 
         if (strlen($title) > 150) {
             $errorMsg = 'El título no puede exceder los 150 caracteres.';
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
             return;
         }
@@ -186,6 +198,8 @@ class ArticleController {
         } catch (Exception $e) {
             error_log("Error al actualizar artículo: " . $e->getMessage());
             $errorMsg = 'Error al actualizar el artículo.';
+            [$isEdit, $formTitle, $idValue, $titleValue, $contentValue, $imageUrl, $actionUrl] =
+                $this->getArticleFormData($article, $title, $content);
             require BASE_PATH . '/app/view/article/article-view.php';
         }
     }
@@ -242,6 +256,19 @@ class ArticleController {
     private function canEditArticle(Article $article): bool {
         return $this->currentUser->getId() === $article->getAuthorId() 
             || $this->currentUser->isAdmin();
+    }
+
+    private function getArticleFormData(?Article $article, ?string $titleValue, ?string $contentValue): array {
+        $isEdit = $article !== null;
+
+        $formTitle = $isEdit ? 'Editar artículo' : 'Crear nuevo artículo';
+        $idValue = $isEdit ? (string)$article->getId() : '';
+        $title = $titleValue ?? ($isEdit ? $article->getTitle() : '');
+        $content = $contentValue ?? ($isEdit ? $article->getContent() : '');
+        $imageUrl = $isEdit ? (string)$article->getImageUrl() : '';
+        $actionUrl = $isEdit ? BASE_URL . 'article/edit/' . $article->getId() : BASE_URL . 'article/create-submit';
+
+        return [$isEdit, $formTitle, $idValue, $title, $content, $imageUrl, $actionUrl];
     }
 
     /**

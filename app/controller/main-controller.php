@@ -68,6 +68,9 @@ class MainController {
 
         $options = range(1, min($total, 20));
         $pageOptions = range(1, $totalPages);
+        $searchKeyword = '';
+        $paginationBasePath = BASE_URL . 'home';
+        $paginationExtraQuery = '';
         
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
@@ -137,6 +140,9 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $searchKeyword = '';
+        $paginationBasePath = BASE_URL . 'my-articles';
+        $paginationExtraQuery = '';
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
@@ -202,6 +208,9 @@ class MainController {
 
         $pageOptions = range(1, $totalPages);
         $options = range(1, min($total, 20));
+        $searchKeyword = $keyword;
+        $paginationBasePath = BASE_URL . 'article/search';
+        $paginationExtraQuery = '&keyword=' . urlencode($keyword);
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 

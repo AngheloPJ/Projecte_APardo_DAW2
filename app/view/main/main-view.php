@@ -61,7 +61,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
 
     <div class="barra-reserca">
         <form action="<?= BASE_URL ?>article/search" method="GET" id="search-form" data-ajax-url="<?= BASE_URL ?>article/search/results" data-search-url="<?= BASE_URL ?>article/search">
-            <input type="search" name="keyword" id="reserca" placeholder="Cercar..." autocomplete="off" value="<?= htmlspecialchars($_GET['keyword'] ?? '') ?>">
+            <input type="search" name="keyword" id="reserca" placeholder="Cercar..." autocomplete="off" value="<?= htmlspecialchars($searchKeyword) ?>">
             <input type="submit" value="Cercar">
 
             <div id="search-results" class="search-results is-hidden" role="listbox" aria-label="Resultados de búsqueda"></div>
@@ -113,12 +113,9 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
 
     <?php if ($totalPages > 1): ?>
         <div class="botons">
-            <!-- URI ACTUAL (PARA RESPETAR LA URL) -->
-            <?php $currentUri = explode('?', $_SERVER['REQUEST_URI'])[0]; ?>
-
             <!-- Botón anterior -->
             <?php if ($page > 1): ?>
-                <a href="<?= $currentUri ?>?p=<?= $page - 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
+                <a href="<?= $paginationBasePath ?>?p=<?= $page - 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?><?= $paginationExtraQuery ?>">
                     <button>←</button>
                 </a>
             <?php endif; ?>
@@ -128,7 +125,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                 <?php if ($p == $page): ?>
                     <button class="actual" disabled><?= $p ?></button>
                 <?php else: ?>
-                    <a href="<?= $currentUri ?>?p=<?= $p ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
+                    <a href="<?= $paginationBasePath ?>?p=<?= $p ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?><?= $paginationExtraQuery ?>">
                         <button><?= $p ?></button>
                     </a>
                 <?php endif; ?>
@@ -136,7 +133,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
 
             <!-- Botón siguiente -->
             <?php if ($page < $totalPages): ?>
-                <a href="<?= $currentUri ?>?p=<?= $page + 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?>">
+                <a href="<?= $paginationBasePath ?>?p=<?= $page + 1 ?>&total=<?= $perPage ?>&orderBy=<?= $orderBy ?>_<?= $direction ?><?= $paginationExtraQuery ?>">
                     <button>→</button>
                 </a>
             <?php endif; ?>

@@ -137,7 +137,22 @@ class UserController {
         }
 
         $offset = ($page - 1) * $perPage;
-        $users = UserDAO::listAll($perPage, $offset);
+        $usersRaw = UserDAO::listAll($perPage, $offset);
+        $users = [];
+
+        foreach ($usersRaw as $u) {
+            $users[] = [
+                'id' => $u->getId(),
+                'username' => $u->getUsername(),
+                'displayName' => $u->getDisplayName(),
+                'email' => $u->getEmail(),
+                'avatarUrl' => buildAvatarURL($u->getAvatarUrl()),
+                'roleValue' => $u->getRole()->value,
+                'roleLabel' => $u->getRole() === Role::ADMIN ? 'Admin' : 'Usuario',
+                'createdAtFormatted' => date('d/m/Y', strtotime((string)$u->getCreatedAt())),
+                'canDelete' => $this->currentUser->getId() !== $u->getId(),
+            ];
+        }
 
         $currentUser = $this->currentUser;
         $isLogged = $currentUser !== null;
