@@ -63,6 +63,12 @@ class ArticleController {
             return;
         }
 
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $this->renderArticleForm(null, 'Solicitud inválida. Recarga la página e inténtalo de nuevo.');
+            return;
+        }
+
         $title   = trim($_POST['titol'] ?? '');
         $content = trim($_POST['cos'] ?? '');
         $steamImageUrl = trim($_POST['steam_image_url'] ?? '');
@@ -136,6 +142,24 @@ class ArticleController {
             return;
         }
 
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $article = ArticleDAO::getById($id);
+            if (!$article) {
+                http_response_code(404);
+                require BASE_PATH . '/public/errors/404-view.php';
+                exit;
+            }
+
+            if (!$this->canEditArticle($article)) {
+                header("Location: " . BASE_URL . "home");
+                exit;
+            }
+
+            $this->renderArticleForm($article, 'Solicitud inválida. Recarga la página e inténtalo de nuevo.');
+            return;
+        }
+
         $article = ArticleDAO::getById($id);
         
         if (!$article) {
@@ -198,6 +222,17 @@ class ArticleController {
     public function delete(int $id): void {
         if (!$this->currentUser) {
             header("Location: " . BASE_URL . "login");
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header("Location: " . BASE_URL . "home");
+            exit;
+        }
+
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            header("Location: " . BASE_URL . "home");
             exit;
         }
 
@@ -267,6 +302,7 @@ class ArticleController {
         $defaultSteamAppId = $viewData['defaultSteamAppId'];
         $defaultInPopularGames = $viewData['defaultInPopularGames'];
         $steamDefaultCount = $viewData['steamDefaultCount'];
+        $csrfToken = $this->session->getCsrfToken();
 
         require BASE_PATH . '/app/view/article/article-view.php';
     }
@@ -301,6 +337,12 @@ class ArticleController {
             return null;
         }
 
+        $allowedMimeToExt = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+        ];
         $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
         $maxFileSize = 5 * 1024 * 1024; // 5 MB
 
@@ -316,6 +358,29 @@ class ArticleController {
         // Validar extensión
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
         if (!in_array($ext, $allowedExtensions)) {
+            return null;
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $detectedMime = $finfo ? finfo_file($finfo, $tmpName) : false;
+        if ($finfo) {
+            finfo_close($finfo);
+        }
+
+        if (!$detectedMime || !isset($allowedMimeToExt[$detectedMime])) {
+            return null;
+        }
+
+        if (@getimagesize($tmpName) === false) {
+            return null;
+        }
+
+        $expectedExt = $allowedMimeToExt[$detectedMime];
+        if ($expectedExt === 'jpg' && !in_array($ext, ['jpg', 'jpeg'], true)) {
+            return null;
+        }
+
+        if ($expectedExt !== 'jpg' && $ext !== $expectedExt) {
             return null;
         }
 

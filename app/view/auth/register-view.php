@@ -19,6 +19,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
         </div>
 
         <form class="formulario-login" method="post" action="<?= BASE_URL ?>register-submit">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <div class="input-group">
                 <input 
                     type="text" 

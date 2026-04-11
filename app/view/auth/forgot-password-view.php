@@ -37,6 +37,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
         <?php else: ?>
             <!-- Descripción principal -->
             <form class="formulario-forgotPass" method="post" action="<?= BASE_URL ?>forgot-password">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <div class="descripcion">
                     <p class='texto'>
                         Escribe tu correo electrónico asociado a tu cuenta para recibir un correo con las instrucciones para restablecer tu contraseña.

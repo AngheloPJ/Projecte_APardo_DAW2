@@ -31,6 +31,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
         </div>
 
         <form action="<?= $actionUrl ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             
             <!-- Avatar -->
             <div class="avatar-preview">
@@ -115,7 +116,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                 <div class="api-key-card">
                     <h3>API KEY</h3>
                     <p>Copia la API KEY porque no la podrás ver nuevamente.</p>
-                    <button type="button" id="generate-api-key-btn" class="api-key-btn" data-url="<?= BASE_URL ?>profile/api-key/generate">Generar API KEY</button>
+                    <button type="button" id="generate-api-key-btn" class="api-key-btn" data-url="<?= BASE_URL ?>profile/api-key/generate" data-csrf-token="<?= htmlspecialchars($csrfToken) ?>">Generar API KEY</button>
                     <p id="api-key-status" class="api-key-status"></p>
                     <pre id="api-key-value" class="api-key-value"></pre>
                 </div>

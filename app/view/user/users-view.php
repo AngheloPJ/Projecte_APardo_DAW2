@@ -77,6 +77,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                                     method="post" 
                                     onsubmit="return confirm('¿Seguro que quieres eliminar a <?= htmlspecialchars($u['displayName']) ?>?')"
                                 >
+                                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                     <button type="submit" class="btn-borrar">Eliminar</button>
                                 </form>
                             <?php endif; ?>

@@ -13,6 +13,7 @@ class SessionController {
     // 40 minuts de sessió
     private $session_lifetime = 40 * 60; // 40 min
     private $session_regen_interval = 10 * 60; // 10 min
+    private const CSRF_KEY = 'csrf_token';
 
     /**
      * Funció per iniciar la sessió
@@ -126,5 +127,37 @@ class SessionController {
     public function getUser(): ?User {
         if (!$this->isLogged()) return null;
         return UserDAO::getById($_SESSION['user_id']);
+    }
+
+    /**
+     * Crea o devuelve un token CSRF para los formularios
+     */
+    public function getCsrfToken(): string {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            $this->start();
+        }
+
+        if (empty($_SESSION[self::CSRF_KEY])) {
+            $_SESSION[self::CSRF_KEY] = bin2hex(random_bytes(32));
+        }
+
+        return (string)$_SESSION[self::CSRF_KEY];
+    }
+
+    /**
+     * Valida token CSRF recibido desde formulario o header
+     */
+    public function validateCsrfToken(?string $token): bool {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            $this->start();
+        }
+
+        $sessionToken = $_SESSION[self::CSRF_KEY] ?? null;
+
+        if (!is_string($token) || $token === '' || !is_string($sessionToken) || $sessionToken === '') {
+            return false;
+        }
+
+        return hash_equals($sessionToken, $token);
     }
 }

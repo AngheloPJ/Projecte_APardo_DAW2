@@ -3,6 +3,7 @@
 require_once BASE_PATH . '/app/model/dao/UserDAO.php';
 require_once BASE_PATH . '/app/model/dao/PasswordResetDAO.php';
 require_once BASE_PATH . '/app/model/entity/User.php';
+require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
 
 require_once BASE_PATH . '/lib/PHPMailer/src/Exception.php';
 require_once BASE_PATH . '/lib/PHPMailer/src/PHPMailer.php';
@@ -12,6 +13,13 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 class PasswordResetController {
+
+    private SessionController $session;
+
+    public function __construct() {
+        $this->session = new SessionController();
+        $this->session->start();
+    }
 
     /**
      * Mostrar formulario de recuperar contraseña
@@ -23,6 +31,7 @@ class PasswordResetController {
         $isLogged = false;
         $currentUser = null;
         $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
+        $csrfToken = $this->session->getCsrfToken();
         require BASE_VIEW . '/auth/forgot-password-view.php';
     }
 
@@ -36,17 +45,29 @@ class PasswordResetController {
         }
 
         $email = trim($_POST['email'] ?? '');
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
         $error = null;
         $success = null;
         $isLogged = false;
         $currentUser = null;
         $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
 
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $error = 'Sesión expirada o solicitud inválida. Recarga la página e inténtalo de nuevo.';
+            $successMsg = null;
+            $emailValue = $email;
+            $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
+            require BASE_VIEW . '/auth/forgot-password-view.php';
+            return;
+        }
+
         if (empty($email)) {
             $error = "Debes introducir un correo electrónico.";
             $successMsg = null;
             $emailValue = $email;
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_VIEW . '/auth/forgot-password-view.php';
             return;
         }
@@ -68,6 +89,7 @@ class PasswordResetController {
         $successMsg = $success;
         $emailValue = $email;
         $errorMessages = [];
+        $csrfToken = $this->session->getCsrfToken();
         require BASE_VIEW . '/auth/forgot-password-view.php';
     }
 
@@ -87,6 +109,7 @@ class PasswordResetController {
         }
 
         $errorMessages = $this->splitErrorMessages($error);
+        $csrfToken = $this->session->getCsrfToken();
         require BASE_VIEW . '/auth/reset-password-view.php';
     }
 
@@ -102,10 +125,19 @@ class PasswordResetController {
         $token = $_POST['token'] ?? '';
         $password = $_POST['password'] ?? '';
         $confirm = $_POST['confirm'] ?? '';
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
         $error = null;
         $isLogged = false;
         $currentUser = null;
         $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
+
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $error = 'Sesión expirada o solicitud inválida. Recarga la página e inténtalo de nuevo.';
+            $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
+            require BASE_VIEW . '/auth/reset-password-view.php';
+            return;
+        }
 
         // Check | Token válido
         $resetData = PasswordResetDAO::getByToken($token);
@@ -114,6 +146,7 @@ class PasswordResetController {
             $error = "Token inválido o caducado.";
             $token = '';
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
@@ -122,6 +155,7 @@ class PasswordResetController {
         if ($password !== $confirm) {
             $error = "Las contraseñas no coinciden.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }
@@ -130,6 +164,7 @@ class PasswordResetController {
         if (!empty($errors)) {
             $error = "La contraseña debe incluir:\n" . implode("\n", $errors);
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_VIEW . '/auth/reset-password-view.php';
             return;
         }

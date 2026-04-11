@@ -359,6 +359,7 @@ class OAuthController {
         $isLogged = false;
         $currentUser = null;
         $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
+        $csrfToken = $this->session->getCsrfToken();
 
         require_once BASE_PATH . '/app/view/oauth/choose-username-view.php';
     }
@@ -369,6 +370,13 @@ class OAuthController {
     public function submitUsername() {
         if (empty($_SESSION['oauth_pending'])) {
             header('Location: ' . BASE_URL . 'login');
+            exit;
+        }
+
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfToken)) {
+            $_SESSION['error'] = 'Solicitud inválida. Recarga la página e inténtalo de nuevo.';
+            header('Location: ' . BASE_URL . 'oauth/choose-username');
             exit;
         }
 

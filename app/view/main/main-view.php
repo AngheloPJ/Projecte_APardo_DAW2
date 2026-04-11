@@ -97,6 +97,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                         </a>
                         
                         <form action="<?= BASE_URL ?>article/delete/<?= $article->getId() ?>" method="post" onsubmit="return confirm('¿Estás seguro que quieres eliminar este artículo?')">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                             <button type="submit" class="btn-delete">Eliminar</button>
                         </form>
 

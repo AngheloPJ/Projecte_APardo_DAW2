@@ -62,6 +62,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
         <?php endif; ?>
 
         <form action="<?= $actionUrl ?>" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
             <?php if($isEdit): ?>
                 <input type="hidden" name="id" value="<?= $idValue ?>">
             <?php endif; ?>

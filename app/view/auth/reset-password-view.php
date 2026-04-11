@@ -22,6 +22,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
 
         <?php if ($token): ?>
             <form class="formulario-login" method="post" action="<?= BASE_URL ?>reset-password-submit">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                 <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
 
                 <div class="input-group">

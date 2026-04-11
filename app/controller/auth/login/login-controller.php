@@ -24,6 +24,22 @@ class LoginController {
 
         $userInput = trim($_POST['user'] ?? '');
         $password  = $_POST['contrasenya'] ?? '';
+        $csrfTokenInput = $_POST['csrf_token'] ?? null;
+
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $error = 'Sesión expirada o solicitud inválida. Recarga la página e inténtalo de nuevo.';
+            $errorMessages = $this->splitErrorMessages($error);
+            $captchaRequired = false;
+            $successMsg = null;
+            $userInputValue = $userInput;
+            $isLogged = false;
+            $currentUser = null;
+            $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
+            $csrfToken = $this->session->getCsrfToken();
+            require BASE_PATH . '/app/view/auth/login-view.php';
+            return;
+        }
+
         $remember  = isset($_POST['recordar']);
         $successMsg = null;
         $userInputValue = $userInput;
@@ -39,6 +55,7 @@ class LoginController {
         if ($captchaRequired && empty($_POST['g-recaptcha-response'])) {
             $error = "El captcha es obligatorio.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/login-view.php';
             return;
         }
@@ -71,6 +88,7 @@ class LoginController {
 
         $error = "Usuario/Email o contraseña incorrectos.";
         $errorMessages = $this->splitErrorMessages($error);
+        $csrfToken = $this->session->getCsrfToken();
         require BASE_PATH . '/app/view/auth/login-view.php';
     }
 
@@ -84,6 +102,22 @@ class LoginController {
         }
 
         $username         = trim($_POST['username'] ?? '');
+        $csrfTokenInput   = $_POST['csrf_token'] ?? null;
+
+        if (!$this->session->validateCsrfToken($csrfTokenInput)) {
+            $error = 'Sesión expirada o solicitud inválida. Recarga la página e inténtalo de nuevo.';
+            $errorMessages = $this->splitErrorMessages($error);
+            $formUsername = trim($_POST['username'] ?? '');
+            $formDisplayName = trim($_POST['displayname'] ?? '');
+            $formEmail = trim($_POST['email'] ?? '');
+            $isLogged = false;
+            $currentUser = null;
+            $avatarUrl = BASE_URL . 'public/uploads/avatars/default.webp';
+            $csrfToken = $this->session->getCsrfToken();
+            require BASE_PATH . '/app/view/auth/register-view.php';
+            return;
+        }
+
         $displayName      = trim($_POST['displayname'] ?? '');
         $email            = trim($_POST['email'] ?? '');
         $password         = $_POST['password'] ?? '';
@@ -103,6 +137,7 @@ class LoginController {
         if (empty($username) || empty($email) || empty($password) || empty($confirmPassword)) {
             $error = "Todos los campos son obligatorios.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -111,6 +146,7 @@ class LoginController {
         if (!$this->isValidEmail($email)) {
             $error = "El email no es válido.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -119,6 +155,7 @@ class LoginController {
         if ($password !== $confirmPassword) {
             $error = "Las contraseñas no coinciden.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -128,6 +165,7 @@ class LoginController {
         if (!empty($passwordErrors)) {
             $error = implode("\n", $passwordErrors);
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -136,6 +174,7 @@ class LoginController {
         if (UserDAO::getByUsername($username)) {
             $error = "Ese nombre de usuario ya existe.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -144,6 +183,7 @@ class LoginController {
         if (UserDAO::getByEmail($email)) {
             $error = "Ese correo electrónico ya está registrado.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
             return;
         }
@@ -174,6 +214,7 @@ class LoginController {
             error_log("Error al crear usuario: " . $e->getMessage());
             $error = "Error al crear el usuario. Por favor, inténtalo de nuevo.";
             $errorMessages = $this->splitErrorMessages($error);
+            $csrfToken = $this->session->getCsrfToken();
             require BASE_PATH . '/app/view/auth/register-view.php';
         }
     }
@@ -198,6 +239,7 @@ class LoginController {
 
         $errorMessages = $this->splitErrorMessages($error);
         $successMsg = $success;
+        $csrfToken = $this->session->getCsrfToken();
         $userInputValue = '';
         $isLogged = false;
         $currentUser = null;
@@ -212,6 +254,7 @@ class LoginController {
         $this->redirectIfLoggedIn();
 
         $errorMessages = [];
+        $csrfToken = $this->session->getCsrfToken();
         $formUsername = '';
         $formDisplayName = '';
         $formEmail = '';

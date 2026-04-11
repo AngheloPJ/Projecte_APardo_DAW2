@@ -56,6 +56,12 @@ class UserController {
             return;
         }
 
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfToken)) {
+            header('Location: ' . BASE_URL . 'profile/edit?error=csrf');
+            exit;
+        }
+
         $user = UserDAO::getById($this->currentUser->getId());
         if (!$user) $this->show404();
 
@@ -72,6 +78,12 @@ class UserController {
 
         if (!$this->currentUser) {
             $this->jsonResponse(['error' => 'No estás autentificado, debes iniciar sesión.'], 401);
+            return;
+        }
+
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfToken)) {
+            $this->jsonResponse(['error' => 'Solicitud inválida (CSRF).'], 419);
             return;
         }
 
@@ -105,6 +117,12 @@ class UserController {
             return;
         }
 
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfToken)) {
+            header('Location: ' . BASE_URL . 'admin/users?error=csrf');
+            exit;
+        }
+
         $user = UserDAO::getById($id);
         if (!$user) $this->show404();
 
@@ -117,6 +135,17 @@ class UserController {
      */
     public function delete(int $id): void {
         $this->validateAdminAccess();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . 'admin/users');
+            exit;
+        }
+
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        if (!$this->session->validateCsrfToken($csrfToken)) {
+            header('Location: ' . BASE_URL . 'admin/users?error=csrf');
+            exit;
+        }
 
         // Evitar que el admin sea down (No se borre a el mismo)
         if ($id === $this->currentUser->getId()) {
@@ -155,6 +184,7 @@ class UserController {
 
         if ($success === 'deleted') $successMsg = 'Usuario eliminado correctamente.';
         if ($error === 'self_delete') $errorMsg = 'No puedes eliminarte a ti mismo.';
+        elseif ($error === 'csrf') $errorMsg = 'Solicitud inválida. Recarga la página e inténtalo de nuevo.';
         elseif ($error === 'delete') $errorMsg = 'Error al eliminar el usuario.';
 
         // ---
@@ -190,6 +220,7 @@ class UserController {
         $currentUser = $this->currentUser;
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
+        $csrfToken = $this->session->getCsrfToken();
 
         require BASE_PATH . '/app/view/user/users-view.php';
     }
@@ -322,18 +353,44 @@ class UserController {
         }
 
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            $fileType = mime_content_type($_FILES['avatar']['tmp_name']);
+            $allowedMimeToExt = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp',
+            ];
+            $tmpName = $_FILES['avatar']['tmp_name'];
 
-            if (!in_array($fileType, $allowedTypes)) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $fileType = $finfo ? finfo_file($finfo, $tmpName) : false;
+            if ($finfo) {
+                finfo_close($finfo);
+            }
+
+            if (!$fileType || !isset($allowedMimeToExt[$fileType])) {
                 return ['error' => 'Tipo de imagen no permitido.'];
+            }
+
+            if (@getimagesize($tmpName) === false) {
+                return ['error' => 'El archivo no es una imagen válida.'];
             }
 
             if ($_FILES['avatar']['size'] > 2097152) {
                 return ['error' => 'La imagen es demasiado grande (máx 2MB).'];
             }
 
-            $extension = pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION);
+            $originalExt = strtolower(pathinfo($_FILES['avatar']['name'], PATHINFO_EXTENSION));
+            $expectedExt = $allowedMimeToExt[$fileType];
+
+            if ($expectedExt === 'jpg' && !in_array($originalExt, ['jpg', 'jpeg'], true)) {
+                return ['error' => 'La extensión del archivo no coincide con su tipo real.'];
+            }
+
+            if ($expectedExt !== 'jpg' && $originalExt !== $expectedExt) {
+                return ['error' => 'La extensión del archivo no coincide con su tipo real.'];
+            }
+
+            $extension = $expectedExt;
             $fileName = 'avatar_' . $user->getId() . '_' . time() . '.' . $extension;
             $relativePath = 'public/uploads/avatars/' . $fileName;
             $absolutePath = BASE_PATH . '/' . $relativePath;
@@ -393,6 +450,7 @@ class UserController {
         $roleAdminValue = Role::ADMIN->value;
         $isRoleUser = $user->getRole()->value === Role::USER->value;
         $isRoleAdmin = $user->getRole()->value === Role::ADMIN->value;
+        $csrfToken = $this->session->getCsrfToken();
 
         require BASE_PATH . '/app/view/user/profile-view.php';
     }

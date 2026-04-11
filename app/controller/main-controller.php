@@ -75,6 +75,7 @@ class MainController {
         $searchKeyword = '';
         $paginationBasePath = BASE_URL . 'home';
         $paginationExtraQuery = '';
+        $csrfToken = $this->session->getCsrfToken();
         
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
@@ -151,6 +152,7 @@ class MainController {
         $searchKeyword = '';
         $paginationBasePath = BASE_URL . 'my-articles';
         $paginationExtraQuery = '';
+        $csrfToken = $this->session->getCsrfToken();
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 
@@ -223,6 +225,7 @@ class MainController {
         $searchKeyword = $keyword;
         $paginationBasePath = BASE_URL . 'article/search';
         $paginationExtraQuery = '&keyword=' . urlencode($keyword);
+        $csrfToken = $this->session->getCsrfToken();
         $isLogged = $currentUser !== null;
         $avatarUrl = buildAvatarURL($currentUser ? $currentUser->getAvatarUrl() : null);
 

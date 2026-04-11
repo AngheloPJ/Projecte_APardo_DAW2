@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusEl = document.getElementById('api-key-status');
             const valueEl = document.getElementById('api-key-value');
             const apiKeyUrl = generateApiKeyBtn.dataset.url;
+            const csrfToken = generateApiKeyBtn.dataset.csrfToken || '';
 
             statusEl.textContent = 'Generando API KEY...';
             valueEl.textContent = '';
@@ -44,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(apiKeyUrl, {
                     method: 'POST',
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-Token': csrfToken
                     }
                 });
 
