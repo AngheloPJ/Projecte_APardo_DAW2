@@ -44,7 +44,7 @@ class ApiKeyAuth {
         }
 
         if ((int)$currentUser->getId() !== $ownerUserId) {
-            self::jsonError('No tienes permisos para usar esta API KEY con esta sesión.', 403);
+            self::jsonError('No tienes permisos para usar esta API KEY.', 403);
         }
 
         return $ownerUserId;
