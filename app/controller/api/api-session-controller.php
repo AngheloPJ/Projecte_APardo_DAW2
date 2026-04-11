@@ -87,11 +87,9 @@ class ApiSessionController {
         }
 
         $user = $this->session->getUser();
-        $usedRememberFallback = false;
 
         if (!$user) {
             $user = $this->session->autoLogin();
-            $usedRememberFallback = $user !== null;
         }
 
         if (!$user) {
@@ -101,22 +99,13 @@ class ApiSessionController {
             return;
         }
 
-        // Renovar sesión y extiende duración
         $this->session->renewSession();
-
-        // Rotación de remember_me en refresh si ya existía cookie activa.
-        if (!$usedRememberFallback) {
-            $cookie = new CookieController();
-            if ($cookie->hasRememberMe()) {
-                $cookie->setRememberMe($user);
-            }
-        }
 
         $this->jsonResponse([
             'success' => true,
             'message' => 'Sesion activa.',
             'user' => [
-                'id' => $user->getId(),
+                'displayname' => $user->getDisplayName(),
                 'username' => $user->getUsername(),
                 'email' => $user->getEmail(),
             ],

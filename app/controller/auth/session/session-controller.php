@@ -12,6 +12,7 @@ require_once BASE_PATH . '/app/controller/auth/cookie/cookie-controller.php';
 class SessionController {
     // 40 minuts de sessió
     private $session_lifetime = 40 * 60; // 40 min
+    private $session_regen_interval = 10 * 60; // 10 min
 
     /**
      * Funció per iniciar la sessió
@@ -46,14 +47,21 @@ class SessionController {
 
     /**
      * Endurece la sesión activa tras un refresh.
-     * Regenera el id y extiende actividad.
+     * Regenera el id de forma controlada y extiende actividad.
      */
     public function renewSession(): void {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             $this->start();
         }
 
-        session_regenerate_id(true);
+        $now = time();
+        $lastRegen = (int)($_SESSION['LAST_SESSION_REGEN'] ?? 0);
+
+        if (($now - $lastRegen) >= $this->session_regen_interval) {
+            session_regenerate_id(true);
+            $_SESSION['LAST_SESSION_REGEN'] = $now;
+        }
+
         $_SESSION['LAST_ACTIVITY'] = time();
     }
 
