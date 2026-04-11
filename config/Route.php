@@ -69,6 +69,10 @@ class Route {
             return;
         }
 
+        if (strpos($uri, 'api/steam/') === 0) {
+            return;
+        }
+
         if ($uri === 'api/auth/login' || $uri === 'api/auth/refresh' || $uri === 'api/auth/logout') {
             return;
         }
