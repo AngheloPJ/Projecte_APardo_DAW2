@@ -19,9 +19,9 @@ class ApiSessionController {
      * Contenido del body:
      * 
      * * {
-     * * * "user": "admin",
-     * * * "pass": "1234",
-     * * * "remember": true
+     * * * "user": "usuari",
+     * * * "pass": "contrasenya",
+     * * * "remember": false
      * * }
      * 
      */
