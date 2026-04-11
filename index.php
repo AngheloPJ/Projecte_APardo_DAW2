@@ -40,7 +40,6 @@ $user     = new UserController();
 $oauth    = new OAuthCallbackController();
 $steam    = new SteamNewsController();
 $api      = new ApiController();
-$apiSession = new ApiSessionController();
 
 // Iniciar sesión
 $session->start();

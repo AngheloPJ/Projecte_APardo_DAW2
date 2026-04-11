@@ -50,6 +50,7 @@ Sistemes de seguretats aplicades:
      - La contrasenya es guarda hasheat per evitar que sigui fàcil d'extreure les contrasenyes.
      - Es guarden tokens hasheats a la cookie i a la base de dades quan li dones a "recorda’m".
      - La sessió té una durada de 40 minuts si l’usuari no activa "recorda’m".
+     - A la recuperació de contrasenya es mostra sempre la mateixa vista i un missatge genèric, existeixi o no el correu, per evitar l'enumeració d'usuaris i millorar la seguretat.
 
 ## Funcionalitats principals
 
