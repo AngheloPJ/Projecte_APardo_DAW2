@@ -11,7 +11,7 @@ require_once BASE_PATH . '/app/controller/auth/cookie/cookie-controller.php';
 
 class SessionController {
     // 40 minuts de sessió
-    private $session_lifetime = 40 * 60;
+    private $session_lifetime = 40 * 60; // 40 min
 
     /**
      * Funció per iniciar la sessió
@@ -41,6 +41,44 @@ class SessionController {
     public function login(User $user) {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $user->getId();
+        $_SESSION['LAST_ACTIVITY'] = time();
+    }
+
+    /**
+     * Endurece la sesión activa tras un refresh.
+     * Regenera el id y extiende actividad.
+     */
+    public function renewSession(): void {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            $this->start();
+        }
+
+        session_regenerate_id(true);
+        $_SESSION['LAST_ACTIVITY'] = time();
+    }
+
+    /**
+     * Limpia toda la autenticación (sesión, cookie y token en BD).
+     */
+    public function clearAuthState(): void {
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$userId && !empty($_COOKIE['remember_me'])) {
+            $rememberUser = UserDAO::getUserByToken((string)$_COOKIE['remember_me']);
+            $userId = $rememberUser?->getId();
+        }
+
+        if ($userId) {
+            UserDAO::clearRememberToken((int)$userId);
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+
+        $cookie = new CookieController();
+        $cookie->clearRememberMe();
     }
 
     /**
@@ -50,16 +88,7 @@ class SessionController {
      * - Borra token en BD
      */
     public function logout() {
-        $userId = $_SESSION['user_id'] ?? null;
-        if ($userId) UserDAO::clearRememberToken($userId);
-
-        // Destruir sesión
-        session_unset();
-        session_destroy();
-
-        // Borrar cookie
-        $cookie = new CookieController();
-        $cookie->clearRememberMe();
+        $this->clearAuthState();
 
         // Redirigir a home
         header("Location: " . BASE_URL . "home");

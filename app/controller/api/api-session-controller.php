@@ -87,9 +87,11 @@ class ApiSessionController {
         }
 
         $user = $this->session->getUser();
+        $usedRememberFallback = false;
 
         if (!$user) {
             $user = $this->session->autoLogin();
+            $usedRememberFallback = $user !== null;
         }
 
         if (!$user) {
@@ -97,6 +99,17 @@ class ApiSessionController {
                 'error' => 'No hay sesion activa ni remember_me valido.'
             ], 401);
             return;
+        }
+
+        // Renovar sesión y extiende duración
+        $this->session->renewSession();
+
+        // Rotación de remember_me en refresh si ya existía cookie activa.
+        if (!$usedRememberFallback) {
+            $cookie = new CookieController();
+            if ($cookie->hasRememberMe()) {
+                $cookie->setRememberMe($user);
+            }
         }
 
         $this->jsonResponse([
@@ -124,23 +137,7 @@ class ApiSessionController {
             return;
         }
 
-        $user = $this->session->getUser();
-
-        if (!$user && !empty($_COOKIE['remember_me'])) {
-            $user = UserDAO::getUserByToken((string)$_COOKIE['remember_me']);
-        }
-
-        if ($user) {
-            UserDAO::clearRememberToken($user->getId());
-        }
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_unset();
-            session_destroy();
-        }
-
-        $cookie = new CookieController();
-        $cookie->clearRememberMe();
+        $this->session->clearAuthState();
 
         $this->jsonResponse([
             'success' => true,
