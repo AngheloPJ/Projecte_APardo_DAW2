@@ -178,6 +178,12 @@ main .barra-reserca #btnCercar {
 /* Contenido de los articulos */
 
 /* Título y descripción dentro de la tarjeta */
+.contenido {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 .titulo {
     text-transform: uppercase;
     margin: 8px 0 6px;
