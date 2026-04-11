@@ -352,6 +352,7 @@ class UserController {
             return ['success' => 'Avatar eliminado.'];
         }
 
+        // Validació MIME para la subida de imagenes
         if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
             $allowedMimeToExt = [
                 'image/jpeg' => 'jpg',
@@ -363,9 +364,6 @@ class UserController {
 
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
             $fileType = $finfo ? finfo_file($finfo, $tmpName) : false;
-            if ($finfo) {
-                finfo_close($finfo);
-            }
 
             if (!$fileType || !isset($allowedMimeToExt[$fileType])) {
                 return ['error' => 'Tipo de imagen no permitido.'];

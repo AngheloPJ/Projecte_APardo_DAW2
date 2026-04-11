@@ -361,11 +361,9 @@ class ArticleController {
             return null;
         }
 
+        // Validació MIME para la subida de imagenes
         $finfo = finfo_open(FILEINFO_MIME_TYPE);
         $detectedMime = $finfo ? finfo_file($finfo, $tmpName) : false;
-        if ($finfo) {
-            finfo_close($finfo);
-        }
 
         if (!$detectedMime || !isset($allowedMimeToExt[$detectedMime])) {
             return null;
