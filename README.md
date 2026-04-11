@@ -41,16 +41,30 @@ Flux general:
 
 Sistemes de seguretats aplicades:
 
-   - Per protegir les dades de la base de dades en cas que hi hagi un inject de dades i agafi'm les dades.
+   - **SQL Injection Prevention**: Es fan servir prepared statements (PDO) per protegir totes les consultes a la BD.
      - Les contrasenyes es validen al formulari per obligar a col·locar una mínimament segura:
         - 8 caràcters de longitud com a mínim
         - 1 majúscula com a mínim
         - 1 símbol com a mínim
         - 1 número com a mínim
-     - La contrasenya es guarda hasheat per evitar que sigui fàcil d'extreure les contrasenyes.
-     - Es guarden tokens hasheats a la cookie i a la base de dades quan li dones a "recorda’m".
-     - La sessió té una durada de 40 minuts si l’usuari no activa "recorda’m".
+     - La contrasenya es guarda hasheat amb `password_hash()` per evitar que sigui fàcil d'extreure les contrasenyes.
+     - Es guarden tokens hasheats a la cookie i a la base de dades quan li dones a "recorda'm".
+     - La sessió té una durada de 40 minuts si l'usuari no activa "recorda'm".
      - A la recuperació de contrasenya es mostra sempre la mateixa vista i un missatge genèric, existeixi o no el correu, per evitar l'enumeració d'usuaris i millorar la seguretat.
+   
+   - **CSRF (Cross-Site Request Forgery) Protection**: Tots els formularis i peticions que modifiquen dades estan protegits amb tokens CSRF.
+     - Es generen tokens únics aleatoris (`bin2hex(random_bytes(32))`) per a cada sessió.
+     - Els tokens es validen en totes les operacions POST, PUT, DELETE.
+     - La validació és constant-time per evitar timing attacks (`hash_equals()`).
+     - Els tokens es propaguen a totes les vistes i peticions AJAX amb headers `X-CSRF-Token`.
+
+     Aixo s'ha afegit per tal d'evitar accions no deseades amb comptes d'usuaris.
+   
+   - **File Upload Security - MIME Validation**: La pujada de fitxers (imatges d'articles i avatars) té validació multi-capa:
+     - `finfo` detecta el MIME type real del fitxer (no confía en l'extensió).
+     - `getimagesize()` verifica que sigui una imatge de veritat (rebutja arxius alterats o executables).
+     - Validació d'extensió: es comprova que l'extensió coincideixi amb el MIME detectat (bloqueja .php amb extensió .jpg).
+     - Només es permeten `image/jpeg`, `image/png`, `image/gif` i `image/webp`.
 
 ## Funcionalitats principals
 
@@ -204,7 +218,7 @@ Estils CSS, fonts i fitxers de llengua.
 - `GET /admin/users`: llista d’usuaris
 - `GET /admin/users/edit/{id}`: editar usuari
 - `POST /admin/users/edit-submit/{id}`: guardar usuari
-- `GET /admin/users/delete/{id}` i `POST /admin/users/delete/{id}`: eliminar usuari
+- `POST /admin/users/delete/{id}`: eliminar usuari
 
 ### Articles
 
@@ -212,7 +226,7 @@ Estils CSS, fonts i fitxers de llengua.
 - `POST /article/create-submit`: crear article
 - `GET /article/edit/{id}`: formulari d’edició
 - `POST /article/edit/{id}` i `POST /article/edit-submit`: desar canvis
-- `GET /article/delete/{id}` i `POST /article/delete/{id}`: eliminar article
+- `POST /article/delete/{id}`: eliminar article
 - `GET /article/search`: cerca normal amb pàgina de resultats
 - `GET /article/search/results`: endpoint AJAX de cerca en viu
 
