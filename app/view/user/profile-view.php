@@ -13,6 +13,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/article.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/profile.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>resources/css/header.css">
+    <script src="<?= BASE_URL ?>public/js/profile.js"></script>
 </head>
 <body>
 
@@ -54,6 +55,7 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                             Eliminar avatar
                         </button>
                         <input type="hidden" id="remove-avatar-flag" name="remove_avatar" value="0">
+                        <input type="hidden" id="default-avatar-url" value="<?= BASE_URL ?>public/uploads/avatars/default.webp">
                     <?php endif; ?>
                 </div>
             </div>
@@ -109,42 +111,20 @@ require_once BASE_PATH . '/app/view/layout/header-view.php';
                 <p class="error"><?= htmlspecialchars($errorMsg) ?></p>
             <?php endif; ?>
 
+            <?php if ($isProfile): ?>
+                <div class="api-key-card">
+                    <h3>API KEY</h3>
+                    <p>Copia la API KEY porque no la podrás ver nuevamente.</p>
+                    <button type="button" id="generate-api-key-btn" class="api-key-btn" data-url="<?= BASE_URL ?>profile/api-key/generate">Generar API KEY</button>
+                    <p id="api-key-status" class="api-key-status"></p>
+                    <pre id="api-key-value" class="api-key-value"></pre>
+                </div>
+            <?php endif; ?>
+
             <button type="submit">Guardar Cambios</button>
         </form>
     </div>
 </main>
-
-<script>
-function previewAvatar(input) {
-    const fileNameDiv = document.getElementById('file-name');
-    const avatarImg = document.getElementById('avatar-img');
-    
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        fileNameDiv.textContent = file.name;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            avatarImg.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-        
-        const removeFlag = document.getElementById('remove-avatar-flag');
-        if (removeFlag) removeFlag.value = '0';
-    }
-}
-
-function removeAvatar() {
-    if (confirm('¿Seguro que quieres eliminar tu avatar?')) {
-        document.getElementById('remove-avatar-flag').value = '1';
-        document.getElementById('avatar-img').src = '<?= BASE_URL ?>public/uploads/avatars/default.webp';
-        
-        const avatarInput = document.getElementById('avatar');
-        avatarInput.value = '';
-        document.getElementById('file-name').textContent = '';
-    }
-}
-</script>
 
 <?php require_once BASE_PATH . '/app/view/layout/footer-view.php' ?>
 </body>
