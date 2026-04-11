@@ -32,7 +32,6 @@ Route::post('profile/api-key/generate', 'UserController@generateApiKey');
 Route::get('admin/users', 'UserController@listUsers');                       
 Route::get('admin/users/edit/{id}', 'UserController@showEditUser');
 Route::post('admin/users/edit-submit/{id}', 'UserController@editUserSubmit');
-Route::get('admin/users/delete/{id}', 'UserController@delete');
 Route::post('admin/users/delete/{id}', 'UserController@delete');
 
 // Artículos
@@ -43,7 +42,6 @@ Route::get('article/edit/{id}', 'ArticleController@showForm');
 Route::post('article/edit/{id}', 'ArticleController@edit');  
 Route::post('article/edit-submit', 'ArticleController@edit');
 
-Route::get('article/delete/{id}', 'ArticleController@delete');
 Route::post('article/delete/{id}', 'ArticleController@delete');
 
 Route::get('article/search', 'MainController@searchArticles');
