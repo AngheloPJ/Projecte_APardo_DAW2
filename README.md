@@ -249,6 +249,13 @@ Endpoints d'autenticació de l'API:
 - `POST /api/auth/logout`: tanca la sessió i elimina el recordatori d'accés.
 - `GET /api/articles`: retorna els articles en format JSON, però només si la API key pertany al mateix usuari que té la sessió activa.
 
+Mijora del endpiont `/api/auth/refresh`:
+
+- Si ja hi ha sessió activa, es renova l'activitat de la sessió i es manté l'usuari autenticat.
+- Si no hi ha sessió activa però existeix `remember_me` vàlid, es fa autoLogin i es recupera la sessió.
+- Si no hi ha ni sessió ni `remember_me` vàlid, retorna error `401`.
+- Per evitar regeneracions excessives, la renovació de `session_id` es fa de manera controlada (interval de temps) i no a cada crida.
+
 En resum, la API no queda oberta per a tothom: primer cal una key vàlida, i després es comprova que el compte autenticat sigui el mateix que ha generat aquesta key.
 
 Sistemes de seguretats aplicades a l'API:
