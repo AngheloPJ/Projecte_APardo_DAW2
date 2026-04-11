@@ -30,6 +30,8 @@ class Route {
             $uri = trim($uri, '/');
         }
 
+        self::protectApiRoutes($uri);
+
         $method = $_SERVER['REQUEST_METHOD'];
 
         foreach (self::$routes[$method] as $route => $action) {
@@ -60,6 +62,15 @@ class Route {
         http_response_code(404);
         require BASE_PATH . '/public/errors/404-view.php';
         exit;
+    }
+
+    private static function protectApiRoutes(string $uri): void {
+        if (strpos($uri, 'api/') !== 0) {
+            return;
+        }
+
+        require_once BASE_PATH . '/app/controller/api/api-auth.php';
+        \ApiKeyAuth::requireValidApiKey();
     }
 
 }

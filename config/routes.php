@@ -25,6 +25,9 @@ Route::post('register-submit', 'LoginController@register');
 Route::get('profile/edit', 'UserController@showUserProfile');
 Route::post('profile/edit-submit', 'UserController@editSubmit');
 
+// Perfil - Api Key
+Route::post('profile/api-key/generate', 'UserController@generateApiKey');
+
 // Admin
 Route::get('admin/users', 'UserController@listUsers');                       
 Route::get('admin/users/edit/{id}', 'UserController@showEditUser');
@@ -58,6 +61,9 @@ Route::get('oauth/hybridauth/callback/{provider}', 'OAuthCallbackController@hybr
 Route::get('oauth/choose-username', 'OAuthCallbackController@chooseUsername');
 Route::post('oauth/choose-username-submit', 'OAuthCallbackController@chooseUsernameSubmit');
 Route::get('oauth/confirm-link', 'OAuthCallbackController@confirmLink');
+
+// API
+Route::get('api/articles', 'ApiController@listArticles');
 
 // Steam API
 Route::get('api/steam/news', 'SteamNewsController@listNews');
