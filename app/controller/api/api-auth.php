@@ -1,6 +1,7 @@
 <?php
 
 require_once BASE_PATH . '/app/model/dao/ApiKeyDAO.php';
+require_once BASE_PATH . '/app/controller/auth/session/session-controller.php';
 
 class ApiKeyAuth {
 
@@ -25,6 +26,28 @@ class ApiKeyAuth {
 
         self::jsonError('Error, API KEY no válida.', 401);
         return 0;
+    }
+
+    /**
+     * Valida API key y exige que el usuario logueado en sesión
+     * sea el mismo dueño de la key usada en el Bearer token.
+     */
+    public static function requireApiKeyOwnerInSession(): int {
+        $ownerUserId = self::requireValidApiKey();
+
+        $session = new SessionController();
+        $session->start();
+        $currentUser = $session->getUser();
+
+        if (!$currentUser) {
+            self::jsonError('Debes iniciar sesión para usar este endpoint.', 401);
+        }
+
+        if ((int)$currentUser->getId() !== $ownerUserId) {
+            self::jsonError('No tienes permisos para usar esta API KEY con esta sesión.', 403);
+        }
+
+        return $ownerUserId;
     }
 
     /**

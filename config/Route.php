@@ -69,6 +69,10 @@ class Route {
             return;
         }
 
+        if ($uri === 'api/auth/login' || $uri === 'api/auth/refresh' || $uri === 'api/auth/logout') {
+            return;
+        }
+
         require_once BASE_PATH . '/app/controller/api/api-auth.php';
         \ApiKeyAuth::requireValidApiKey();
     }

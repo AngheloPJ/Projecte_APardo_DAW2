@@ -27,6 +27,7 @@ require_once BASE_PATH . '/app/controller/user/user-controller.php';
 require_once BASE_PATH . '/app/controller/oauth/callback.php';
 require_once BASE_PATH . '/app/controller/steam/steam-news-controller.php';
 require_once BASE_PATH . '/app/controller/api/api-controller.php';
+require_once BASE_PATH . '/app/controller/api/api-session-controller.php';
 
 // Instancias
 $main     = new MainController();
@@ -39,6 +40,7 @@ $user     = new UserController();
 $oauth    = new OAuthCallbackController();
 $steam    = new SteamNewsController();
 $api      = new ApiController();
+$apiSession = new ApiSessionController();
 
 // Iniciar sesión
 $session->start();

@@ -12,7 +12,7 @@ class ApiController {
     public function listArticles(): void {
         header('Content-Type: application/json; charset=utf-8');
 
-        ApiKeyAuth::requireValidApiKey();
+        ApiKeyAuth::requireApiKeyOwnerInSession();
 
         $rows = ArticleDAO::list(50, 0);
         $articles = [];
@@ -24,7 +24,7 @@ class ApiController {
                 'description' => (string)$row['content'],
                 'author' => (string)($row['author_displayname'] ?? $row['author_name'] ?? 'Anonimo'),
                 'published_at' => (string)$row['published_at'],
-                'special_mensajito' => 'BackendIsTheDarkSide @ Sapalomera - 2026',
+                'special_message' => 'BackendIsTheDarkSide @ Sapalomera - 2026',
             ];
         }
 

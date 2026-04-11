@@ -63,6 +63,9 @@ Route::post('oauth/choose-username-submit', 'OAuthCallbackController@chooseUsern
 Route::get('oauth/confirm-link', 'OAuthCallbackController@confirmLink');
 
 // API
+Route::post('api/auth/login', 'ApiSessionController@login');
+Route::post('api/auth/refresh', 'ApiSessionController@refresh');
+Route::post('api/auth/logout', 'ApiSessionController@logout');
 Route::get('api/articles', 'ApiController@listArticles');
 
 // Steam API
